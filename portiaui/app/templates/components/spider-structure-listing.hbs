@@ -148,6 +148,11 @@
                         {{indentation-spacer}}
                         {{list-item-icon icon='sample'}}
                         {{list-item-editable value=(mut sample.name) editing=(mut sample.new) onChange=(action 'saveSample' sample)}}
+
+                        {{#list-item-page-type sample=sample}}
+                            Change page type
+                        {{/list-item-page-type}}
+
                     {{/link-to}}
 
                     {{#list-item-icon-menu icon='vertical-ellipsis' as |options|}}

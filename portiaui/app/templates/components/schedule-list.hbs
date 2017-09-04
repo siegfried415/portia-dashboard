@@ -1,0 +1,47 @@
+{{#if schedules.length}}
+    <h4>
+        Schedules : 
+        {{#if hasPreviousPage }}
+                <i
+                 onclick={{perform turnPage -1}}
+                 class='fa fa-angle-left clickable'>
+                </i>
+        {{/if}}
+        {{pagination}} 
+        {{#if hasNextPage }}
+                <i
+                 onclick={{perform turnPage 1}}
+                 class='fa fa-angle-right clickable'>
+                </i>
+        {{/if}}
+    </h4>
+
+    <table class="gridtable">
+        <tr> 
+            <th>Id </th>
+            <th>Spider</th>
+            <th>Start time</th>
+            <th>Update time</th>
+            <th>Interval</th>
+            <th>Times</th>
+            <th>Delete</th>
+        </tr>
+        {{#each schedules as |schedule|}}
+            <tr>
+                <td>{{schedule.id}} </td>
+                <td>{{schedule.spider}} </td>
+                <td>{{schedule.start_time}} </td>
+                <td>{{schedule.update_time}} </td>
+                <td>{{schedule.interval}} </td>
+                <td>{{schedule.times}} </td>
+                <td>
+                    {{list-item-icon icon='remove' action=(action 'removeSchedule' schedule )}}
+                </td>
+            </tr>
+        {{/each}}
+
+    </table>    
+
+{{else}}
+   <h4> No schedules </h4> 
+{{/if}}

@@ -11,3 +11,4 @@ six==1.10.0
 scrapy-splash==0.7.2
 page_finder==0.1.8
 chardet==3.0.3
+scrapyd==1.1.0

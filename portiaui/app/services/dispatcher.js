@@ -172,6 +172,7 @@ export default Ember.Service.extend({
         const sample = store.createRecord('sample', {
             name,
             body: 'original_body',
+            page_type : 'item',
             url,
             spider
         });
@@ -217,7 +218,7 @@ export default Ember.Service.extend({
         return item;
     },
 
-    addAnnotation(item, element, attribute, redirect = false) {
+    addAnnotation(item, element, attribute, redirect = false, fieldName = '' ) {
         if (!item) {
             let activeItem;
             let activeAnnotation;
@@ -244,6 +245,20 @@ export default Ember.Service.extend({
         if (attribute !== undefined) {
             annotation.set('attribute', attribute);
         }
+
+        if(fieldName !== '' ) {
+            let field = item.get('schema.fields').findBy('name', fieldName );
+            if (field){
+                annotation.set('field', field);
+            }else {
+                this.addNamedField(item.get('schema'), fieldName, 'text' ).then (
+                    field => {
+                       annotation.set('field', field);
+                }) ;
+            }
+
+        }
+
         this.saveAnnotationAndRelatedSelectors(annotation).then(() => {
             if (redirect) {
                 annotation.set('new', true);

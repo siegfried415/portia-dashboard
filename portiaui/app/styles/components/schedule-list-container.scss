@@ -1,0 +1,10 @@
+.schedule-list-container {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    margin: $grid-gutter-width;
+}
+

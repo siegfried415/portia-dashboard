@@ -89,12 +89,31 @@ class Annotations(object):
                 self.extractors.append(SlybotIBLExtractor(list(group)))
 
         # generate ibl extractor for links pages
+        """
         _links_pages = [dict_to_page(t, 'annotated_body')
                         for t in templates if t.get('page_type') == 'links']
         _links_item_descriptor = create_slybot_item_descriptor({'fields': {}})
         self._links_ibl_extractor = InstanceBasedLearningExtractor(
             [(t, _links_item_descriptor) for t in _links_pages]) \
             if _links_pages else None
+        """
+
+        _links_pages = [(t.get('scrapes'), dict_to_page(t, 'annotated_body'), t.get('version', '0.12.0')) for t in templates if t.get('page_type') == 'links']
+
+        _links_page_descriptor_pairs = []
+        for default, template, v in _links_pages:
+            descriptors = OrderedDict()
+            for schema_name, schema in items.items():
+                item_descriptor = create_slybot_item_descriptor(schema, schema_name)
+                descriptors[schema_name] = item_descriptor
+            descriptor = descriptors.values() or [{}]
+            descriptors['#default'] = descriptors.get(default, descriptor[0])
+            _links_page_descriptor_pairs.append((template, descriptors, v))
+
+        self._links_ibl_extractor = SlybotIBLExtractor(
+            [(template, descriptors, version ) for template, descriptors,version  in _links_page_descriptor_pairs])\
+            if _links_page_descriptor_pairs else None
+
 
         self.build_url_filter(spec)
         # Clustering
@@ -155,7 +174,7 @@ class Annotations(object):
         extracted = extracted or []
         link_regions = []
         for ddict in extracted:
-            link_regions.extend(arg_to_iter(ddict.pop("_links", [])))
+            link_regions.extend(arg_to_iter(ddict.pop("links", [])))
         descriptor = None
         unprocessed = False
         if template is not None and hasattr(template, 'descriptor'):
@@ -290,7 +309,7 @@ class Annotations(object):
         if self._links_ibl_extractor is not None:
             extracted = self._links_ibl_extractor.extract(htmlpage)[0]
             if extracted:
-                extracted_regions = extracted[0].get('_links', [])
+                extracted_regions = extracted[0].get('links', [])
                 seen = set()
                 for region in extracted_regions:
                     htmlregion = HtmlPage(htmlpage.url, htmlpage.headers,

@@ -1,3 +1,7 @@
+{{#if suggestEnabled }}
+    {{annotation-suggested-group suggestColors=suggestColors }}
+{{/if}}
+
 {{#tool-group id="inspector-group" as |group|}}
     {{#if (eq group.section "tabs")}}
         {{#group.tab toolId="inspector"}}

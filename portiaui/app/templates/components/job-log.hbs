@@ -1,0 +1,21 @@
+{{#if job.log.length}}
+    <h4> logs: </h4>
+    <table class="gridtable">
+        <tr> 
+            <th>date </th>
+            <th>source</th>
+            <th>level</th>
+            <th>text</th>
+        </tr>
+        {{#each job.log as |log|}}
+            <tr>
+                <td>{{log.date}} </td>
+                <td>{{log.source}} </td>
+                <td>{{log.level}} </td>
+                <td>{{log.text}} </td>
+            </tr>
+        {{/each}}
+    </table>    
+{{else}}
+   <h4> No log </h4> 
+{{/if}}

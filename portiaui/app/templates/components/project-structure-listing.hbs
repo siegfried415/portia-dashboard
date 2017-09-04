@@ -88,6 +88,7 @@
     {{/tree-list-item}}
 {{/tree-list}}
 
+
 {{#tree-list hide=currentSpider}}
     {{#tree-list-item hasChildren=true as |options|}}
         {{#if (eq options.section "item")}}
@@ -163,3 +164,54 @@
         {{/if}}
     {{/tree-list-item}}
 {{/tree-list}}
+
+
+
+{{#tree-list hide=currentSpider}}
+    {{#tree-list-item }}
+        {{#link-to 'projects.project.jobs' project.id }}
+            {{#list-item-text class="title"}}
+                Jobs
+                {{#animation-container class="inline" setHeight=false}}
+                    {{#help-icon}}
+                        Jobs
+                        <p>
+                            A job is an running spider in a project, just like a process is a running program.
+                        </p>
+                        <p>
+                            Like process, a job also have some status: pending, running and finished.
+                        </p>
+                        <p>
+                            You can cancel a job if the job is pending, it will be removed. if the job is running, it will be terminated.
+                        </p>
+                    {{/help-icon}}
+                {{/animation-container}}
+            {{/list-item-text}}
+        {{/link-to}}
+
+    {{/tree-list-item}}
+
+    {{#tree-list-item }}
+        {{#link-to 'projects.project.schedule' project.id }}
+            {{#list-item-text class="title"}}
+                Schedules
+                {{#animation-container class="inline" setHeight=false}}
+                    {{#help-icon}}
+                        Schedules
+                        <p>
+                            A schedule is an periodic job which can be running at interrvals of time.
+                        </p>
+                        <p>
+                            This is useful for continuously get new items from a web site without human intervention.
+                        </p>
+                        <p>
+                            You can cancel a schedule if you hope crawling will not run in future.
+                        </p>
+                    {{/help-icon}}
+                {{/animation-container}}
+            {{/list-item-text}}
+
+        {{/link-to}}
+    {{/tree-list-item}}
+{{/tree-list}}
+

@@ -113,6 +113,11 @@ class IblSpider(SitemapSpider):
         password = response.request.meta["password"]
         args, url, method = fill_login_form(response.url, response.body,
                                             username, password)
+
+        self.logger.debug(
+            "fill_login_form with url=%s, method=%s, args=%s" % (url, method, args )
+        )
+
         return FormRequest(url, method=method, formdata=args,
                            callback=self.after_login, dont_filter=True)
 

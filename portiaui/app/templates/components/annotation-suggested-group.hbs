@@ -1,0 +1,14 @@
+{{#tool-group id="annotation-suggested-group" as |group|}}
+    {{#if (eq group.section "tabs")}}
+        {{#group.tab toolId="annotation-suggested"}}
+            {{#annotation-suggested-tab}}
+                Annotation suggested 
+            {{/annotation-suggested-tab}}
+        {{/group.tab}}
+    {{else if (eq group.section "panels")}}
+        {{#group.panel class="annotation-suggested container-fluid" toolId="annotation-suggested" as |active|}}
+            {{annotation-suggested-panel selected=active suggestColors=suggestColors }}
+        {{/group.panel}}
+    {{/if}}
+{{/tool-group}}
+

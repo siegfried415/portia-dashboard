@@ -6,5 +6,12 @@
             {{/if}}
         {{/each}}
     {{/each}}
+
+    {{#if suggestEnabled }}
+        {{#each suggests as |suggest| }}
+            {{element-overlay class=(concat  (if (eq hoveredSuggest suggest ) ' group-hovered' ) (if (eq selectedSuggest suggest) ' group-selected')) viewPortElement=suggest.element icon=(if (eq suggest.element hoveredElement) (get selectionModeIcons activeSelectionMode)) color=(array-get suggestColors suggest.id ) }}
+        {{/each}}
+    {{/if}}
+
     {{element-overlay class=(concat 'hover-overlay' (unless showHoverOverlay ' hide')) positionMode='edges' viewPortElement=hoveredElement icon=(get selectionModeIcons activeSelectionMode) color=hoverOverlayColor}}
 </div>

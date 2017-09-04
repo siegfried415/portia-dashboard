@@ -1,0 +1,55 @@
+<p>
+    <h4>
+        {{type}} : 
+        {{#if jobs.length }}
+            {{#if hasPreviousPage }}
+                <i
+                 onclick={{perform turnPage -1}}
+                 class='fa fa-angle-left clickable'>
+                </i>
+            {{/if}}
+
+            {{pagination}} 
+
+            {{#if hasNextPage }}
+                <i
+                 onclick={{perform turnPage 1}}
+                 class='fa fa-angle-right clickable'>
+                </i>
+            {{/if}}
+        {{else}}
+            ( No jobs )
+        {{/if}}
+    </h4>
+
+    <table class="gridtable" width="100%">
+        <tr> 
+            <th width="30%">Id</th>
+            <th width="10%">Spider</th>
+            <th width="18%">Start time</th>
+            <th width="18%">End time</th>
+            <th width="8%">Items</th>
+            <th width="8%">Log</th>
+            <th width="8%">Cancel</th>
+        </tr>
+        {{#each jobs as |job|}}
+            <tr>
+                <td width="30%">{{job.id}} </td>
+                <td width="10%">{{job.spider}} </td>
+                <td width="18%">{{job.start_time}} </td>
+                <td width="18%">{{job.end_time}} </td>
+                <td width="8%">
+                    {{#link-to 'projects.project.jobs.job-items' job.id }} items {{/link-to}}
+                </td>
+                <td width="8%">
+                    {{#link-to 'projects.project.jobs.job-log' job.id }} log  {{/link-to}}
+                </td>
+                <td width="8%">
+                    {{list-item-icon icon='remove' action=(action 'cancelJob' job)}}
+                </td>
+            </tr>
+        {{/each}}
+
+    </table>    
+
+</p>

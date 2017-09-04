@@ -180,7 +180,10 @@ class SampleSerializer(JsonApiSerializer):
             'exclude_map': {
                 'samples': [
                     'page-id',
-                    'page-type',
+
+                    #bugfix,
+                    #'page-type',
+
                     'original-body',
                     'annotated-body',
                 ]

@@ -29,6 +29,16 @@ Router.map(function() {
                 });
                 this.route('options');
             });
+
+            this.route('jobs', {path:'jobs'}, function() {
+                this.route('job-log', {path:'job-log/:job_id'});
+                this.route('job-items',{path:'job-items/:job_id'}, function() {
+                    this.route('job-item', {path:'job-item/:job_item_id'});
+                });
+            } );
+            this.route('schedule');
+
+
             this.route("conflicts", function(){
                 this.route("conflict", {path: ':file_path'});
             });

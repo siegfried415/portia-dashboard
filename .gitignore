@@ -6,12 +6,24 @@
 .vagrant/
 /.idea/
 
+#python celery 
+portia_server/celerybeat-schedule
+
 # Python build files
 *.egg-info
 slybot/dist
 slybot/build
+
+slybot/dbs/
+slybot/eggs/
+slybot/items/
+slybot/logs/
+slybot/slybot-project
+slybot/twistd.pid
+
 slyd/slyd/dist
 slyd/slyd/build
+slyd/build/
 
 # npm files
 node_modules/*
@@ -36,3 +48,5 @@ docs/_build
 # Default Portia data directory
 slyd/slyd/data
 /data/
+
+scrapyd/*

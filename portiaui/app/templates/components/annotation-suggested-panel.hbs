@@ -1,0 +1,8 @@
+{{#each suggests as |suggest| }}
+    {{#tree-list-item onMouseEnter=(action 'enterSuggest' suggest ) onMouseLeave=(action 'leaveSuggest' ) as |options|}}
+        {{list-item-badge value=1 color=(array-get suggestColors suggest.id ) }}
+        {{list-item-icon icon=suggest.type}}
+        {{#list-item-text class="text" }} {{suggest.name}} : {{suggest.element.textContent}} {{/list-item-text}}
+        {{list-item-icon icon='ok' action=(action 'acceptSuggest' suggest) bubbles=false}}
+    {{/tree-list-item}}
+{{/each}}

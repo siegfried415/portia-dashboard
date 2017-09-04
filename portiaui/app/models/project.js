@@ -28,6 +28,9 @@ const Project =  BaseModel.extend({
     copy: memberActionAndMarkClean({path: 'copy', type: 'POST'}),
     reset:  memberActionAndMarkClean({path: 'reset'}),
 
+    //wyong, 20170421
+    deploy: memberActionAndMarkClean({path: 'deploy'}),
+
     markClean() {
         this.set('changes.hasChanges', false);
     }

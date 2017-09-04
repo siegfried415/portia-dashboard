@@ -1,0 +1,43 @@
+{{#if jobItems.length}}
+    <h4>
+        Items: 
+        {{#if hasPreviousPage }}
+                <i
+                 onclick={{perform turnPage -1}}
+                 class='fa fa-angle-left clickable'>
+                </i>
+        {{/if}}
+        {{pagination}} 
+        {{#if hasNextPage }}
+                <i
+                 onclick={{perform turnPage 1}}
+                 class='fa fa-angle-right clickable'>
+                </i>
+        {{/if}}
+    </h4>
+
+    <table class="gridtable">
+        <tr> 
+            <th>Id </th>
+            <th>Spider</th>
+            <th>Url</th>
+            <th>Scraped time</th>
+            <th>Delete</th>
+        </tr>
+        {{#each jobItems as |jobItem|}}
+            <tr>
+                <td>{{#link-to 'projects.project.jobs.job-items.job-item' jobItem.id}} {{jobItem.id}} {{/link-to}} </td>
+                <td>{{jobItem.spider}} </td>
+                <td>{{jobItem.url}} </td>
+                <td>{{jobItem.time}} </td>
+                <td>
+                    {{list-item-icon icon='remove' action=(action 'removeJobItem' jobItem )}}
+                </td>
+            </tr>
+        {{/each}}
+
+    </table>    
+
+{{else}}
+   <h4> No Items </h4> 
+{{/if}}

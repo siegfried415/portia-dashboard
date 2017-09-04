@@ -8,6 +8,8 @@ export default Ember.Controller.extend({
     dispatcher: Ember.inject.service(),
     uiState: Ember.inject.service(),
 
+    suggester : Ember.inject.service(),
+
     selectionModeIcons: {
         select: 'tool-select',
         add: 'tool-add',
@@ -34,6 +36,11 @@ export default Ember.Controller.extend({
     sample: Ember.computed.readOnly('model'),
     selectedModel: Ember.computed.alias('uiState.viewPort.selectedModel'),
     selectionMode: Ember.computed.alias('uiState.selectedTools.selectionMode'),
+
+    suggestEnabled: false,
+    suggests : Ember.computed.alias('suggester.annotationSuggested'),
+    hoveredSuggest : Ember.computed.alias('uiState.annotationSuggested.hoveredSuggest'), 
+    selectedSuggest : Ember.computed.alias('uiState.annotationSuggested.selectedSuggest'), 
 
     hoveredModels: Ember.computed(
         'uiState.viewPort.hoveredModels', 'hoveredElement', 'sample.dataStructure.annotations', {
@@ -111,17 +118,40 @@ export default Ember.Controller.extend({
                 return 'select';
             }
         }),
-    annotationColors: Ember.computed(
+
+
+    suggestColors: Ember.computed(
+	'suggests.length',			      
         'sample.orderedAnnotations.length', 'activeSelectionMode', 'hoveredElement', function() {
             const annotations = this.getWithDefault('sample.orderedAnnotations.length', 0);
-            if (this.get('activeSelectionMode') === 'add' && this.get('hoveredElement')) {
-                return getColors(annotations + 1);
-            }
-            if (annotations) {
-                return getColors(annotations);
+            const suggestCount = this.getWithDefault('suggests.length', 0);
+            const colors = this.getWithDefault('annotationColors', []);
+
+            //if (this.get('activeSelectionMode') === 'add' && this.get('hoveredElement')) {
+            //    return colors.slice(annotations, annotations + suggestCount);
+            //}
+	    
+            if (suggestCount ) {
+                return colors.slice(annotations, annotations + suggestCount);
             }
             return [];
         }),
+
+    annotationColors: Ember.computed(
+	'suggests.length',	
+        'sample.orderedAnnotations.length', 'activeSelectionMode', 'hoveredElement', function() {
+            const annotations = this.getWithDefault('sample.orderedAnnotations.length', 0);
+            const suggestCount = this.getWithDefault('suggests.length', 0);
+
+            if (this.get('activeSelectionMode') === 'add' && this.get('hoveredElement')) {
+                return getColors(annotations + suggestCount + 1);
+            }
+            if (annotations + suggestCount ) {
+                return getColors(annotations  + suggestCount );
+            }
+            return [];
+        }),
+
     generalizableModel: Ember.computed(
         'selectionMode', 'selectedModel', 'hoveredElement',
         'sample.orderedChildren.@each.elements', function() {
@@ -301,6 +331,24 @@ export default Ember.Controller.extend({
                 browser.enableCSS();
             }
         },
+
+	toogleAnnotationSuggested() {
+	    const suggestEnabled=  this.get('suggestEnabled');
+	    if(suggestEnabled) {
+                this.set('suggestEnabled', false);
+	    }else{
+                this.set('suggestEnabled', true);
+		this.set('suggests', []);
+                const suggester = this.get('suggester');
+
+		const page_type = this.get('sample.page_type');
+		if ( page_type === 'links' ) {
+	            suggester.getLinksAnnotationSuggested();
+		} else if ( page_type === 'item' ) {
+	            suggester.getItemAnnotationSuggested();
+		}
+	    }
+	},
 
         toggleMagicTool() {
             const magicToolActive = this.get('magicToolActive');

@@ -46,7 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+
+    #wyong, 20170306
+    'portia_dashboard.apps.PortiaDashboardConfig' ,
+
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -107,6 +112,9 @@ USE_TZ = True
 PORTIA_STORAGE_BACKEND = 'storage.backends.FsStorage'
 
 SCHEDULE_URL = 'http://localhost:6800/schedule.json'
+
+#wyong, 20170227
+SCRAPYD_URL= 'http://localhost:6800'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

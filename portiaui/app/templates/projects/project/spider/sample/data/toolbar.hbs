@@ -23,6 +23,22 @@
         {{/tooltip-container}}
     </div>
 
+
+    <div class="btn-group" role="group">
+        {{#tooltip-container tooltipFor="annotation-suggest-button" placement='left' tooltipContainer='body' as |options| }}
+            {{#if (eq options.section 'tooltip')}}
+                Annotation suggestation 
+                <p>
+                    Get annotation suggested by VIPS alogorithm. 
+                </p>
+            {{else}}
+                <button id="annotation-suggest-button" type="button" class="btn btn-default {{if suggestEnabled 'active' }}" {{action 'toogleAnnotationSuggested'}}>
+                    {{icon-button icon='data-annotation'}}
+                </button>
+            {{/if}}
+        {{/tooltip-container}}
+    </div>
+
     <div class="btn-group" role="group">
         {{#tooltip-container tooltipFor="magic-tool-button" placement='left' tooltipContainer='body' as |options| }}
             {{#if (eq options.section 'tooltip')}}

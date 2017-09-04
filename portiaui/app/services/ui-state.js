@@ -57,6 +57,12 @@ export default Ember.Service.extend({
     slideMain: false,
     selectedTools: storageFor('uiStateSelectedTools'),
     collapsedPanels: storageFor('uiStateCollapsedPanels'),
+
+    annotationSuggested : { 
+	hoveredSuggest:null,
+	selectedSuggest:null
+    },
+
     viewPort: {
         hoveredElement: null,
         hoveredModels: [],

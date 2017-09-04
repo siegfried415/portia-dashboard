@@ -365,7 +365,7 @@ class Sample(Model, OrderedAnnotationsMixin):
     name = String(required=True)
     url = Url(required=True)
     page_id = String(default='')
-    page_type = String(default='item', validate=OneOf(['item']))
+    page_type = String(default='item', validate=OneOf(['item', 'links']))
     spider = BelongsTo(Spider, related_name='samples', on_delete=CASCADE,
                        only='id')
     items = HasMany('Item', related_name='sample', on_delete=CLEAR)

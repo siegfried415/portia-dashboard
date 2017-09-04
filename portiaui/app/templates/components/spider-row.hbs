@@ -35,6 +35,19 @@
                     {{list-item-icon class="icon" icon="copy"}}{{value}}
                 {{/options.item}}
             {{/if}}
+
+            <li><a {{action 'runSpider' spider }} > 
+               {{list-item-icon class="icon" icon="play"}} Run this spider
+                </a>
+            </li>
+
+            <li><a {{action (chain-actions options.closeMenu 
+                  (action 'toggleScheduleOptionsModal' spider) ) }} > 
+               {{list-item-icon class="icon" icon="play"}} Schedule this spider
+                </a>
+            </li>
+
+
             {{dropdown-delete
               onDelete=(action 'removeSpider' spider)
               text='Delete Spider'
@@ -53,4 +66,22 @@
     {{/animation-container}}
 
 {{/tree-list-item}}
+
+{{#if isShowingScheduleOptionsModal}}
+    {{#modal-dialog close="toggleScheduleOptionsModal" targetAttachment="center" translucentOverlay=true}}
+        <h3>Schedule Options</h3>
+        <div class="form-group">
+            <label for="interval">Interval</label>
+            {{input type="text" class="form-control" id="interval" value=interval }}
+        </div>
+
+        <div class="form-group">
+            <label for="times">Times</label>
+            {{input type="text" class="form-control" id="times" value=times }}
+        </div>
+
+        <button type="submit" class="btn btn-primary" {{action "scheduleSpider"}}>Submit</button>
+    {{/modal-dialog}}
+
+{{/if}}
 
