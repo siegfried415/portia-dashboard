@@ -24,7 +24,7 @@
     <div class="overlay-container">
         {{yield (hash section="overlays")}}
     </div>
-    {{browser-iframe clickHandler=(action 'viewPortClick')}}
+    {{browser-iframe clickHandler=(action 'viewPortClick') changeHandler=(action 'viewPortChange') }}
 </div>
 
 <div class="browser-start-page {{if browser.url 'hide'}}">

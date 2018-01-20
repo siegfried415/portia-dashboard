@@ -79,3 +79,16 @@ export function flatten(list) {
     });
     return result;
 }
+
+//Used by locatorbuilder
+export function exactMatchPattern(string) {
+    if (string != null && 
+       (string.match(/^\w*:/) || 
+        string.indexOf('?') >= 0 || 
+        string.indexOf('*') >= 0)) {
+        return "exact:" + string;
+    } else {
+        return string;
+    }
+}
+

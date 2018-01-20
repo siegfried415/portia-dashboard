@@ -1,0 +1,4 @@
+<p> <h4> Schedules : </h4>
+    {{models-table data=schedules columns=columns showColumnsDropdown=false showGlobalFilter=false showPageSize=true  selectRowOnClick=true multipleSelect=true  delete="removeSchedule" displayDataChangedAction="displayDataChanged" sendDisplayDataChangedAction=true}}
+    {{list-item-icon icon='remove' action=(action 'deleteSelectedSchedules' selectedItems )}}
+</p>

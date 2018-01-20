@@ -16,6 +16,11 @@ export function initialize(application) {
         'schemaRoute', 'route:projects/project/schema');
     application.inject('service:ui-state',
         'fieldRoute', 'route:projects/project/schema/field');
+
+    application.inject('service:ui-state',
+        'actionRoute', 'route:projects/project/spider/action');
+    application.inject('service:ui-state',
+        'commandRoute', 'route:projects/project/spider/action/data/command');
 }
 
 export default {

@@ -4,7 +4,8 @@ import { cleanUrl, renameAttr } from '../utils/utils';
 
 export const NAVIGATION_MODE = 'navigation';
 export const ANNOTATION_MODE = 'data-annotation';
-export const INTERACTION_MODES = new Set([ANNOTATION_MODE]);
+export const RECORD_MODE = 'record';
+export const INTERACTION_MODES = new Set([ANNOTATION_MODE, RECORD_MODE]);
 export const DEFAULT_MODE = NAVIGATION_MODE;
 
 /* jshint ignore:start */
@@ -61,7 +62,9 @@ const META_STYLE = `<style title="portia-show-meta">
 /* jshint ignore:end */
 
 export default Ember.Service.extend(Ember.Evented, {
+    //todo, just for debug
     extractedItems: Ember.inject.service(),
+
     webSocket: Ember.inject.service(),
 
     backBuffer: [],
@@ -132,6 +135,7 @@ export default Ember.Service.extend(Ember.Evented, {
         const currentUrl = this.get('_url');
         url = cleanUrl(url);
         if (url && url !== currentUrl) {
+            //todo
             this._extract();
 
             this.beginPropertyChanges();
@@ -215,11 +219,23 @@ export default Ember.Service.extend(Ember.Evented, {
         }
     },
 
+    setRecordMode() {
+        this.set('mode', RECORD_MODE);
+    },
+
+    clearRecordMode() {
+        if (this.get('mode') === RECORD_MODE) {
+            this.set('mode', DEFAULT_MODE);
+            this.enableCSS();
+        }
+    },
+
     _updateBuffers(currentBuffer, otherBuffer) {
         if (currentBuffer.length) {
             this.beginPropertyChanges();
             otherBuffer.pushObject(this.get('_url'));
             const url = currentBuffer.popObject();
+            //todo
             this._extract();
             this.setProperties({
                 '_url': url,
@@ -230,6 +246,9 @@ export default Ember.Service.extend(Ember.Evented, {
     },
 
     _extract() {
-        this.get('extractedItems').activateExtraction();
+        //todo, just for debug
+        //if (this.get('mode') === ANNOTATION_MODE ) {
+            this.get('extractedItems').activateExtraction();
+        //}
     }
 });

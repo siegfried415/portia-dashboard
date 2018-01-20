@@ -1,6 +1,7 @@
 import json
 import re
 
+
 LUA_SOURCE = """
 function main(splash)
     assert(splash:go(splash.args.url))

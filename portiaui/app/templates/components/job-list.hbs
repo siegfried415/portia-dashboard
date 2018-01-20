@@ -1,0 +1,17 @@
+<p>
+    <h4> Jobs in {{type}} status: </h4>
+
+    {{#if (eq type "pending" ) }}
+        <p><button class="btn btn-default" type="button" {{action 'cancelSelectedJobs' selectedItems }}> Cancel Selected jobs </button></p>
+        {{models-table data=pendingJobs columns=pendingOrRunningColumns showColumnsDropdown=false showGlobalFilter=false pageSizeValues=pageSizeValues pageSize=5 showPageSize=true  selectRowOnClick=true multipleSelect=true cancel="cancelJob" delete="deleteJob" displayDataChangedAction="displayDataChanged" sendDisplayDataChangedAction=true}}
+
+    {{else if (eq type "running" ) }}
+        <p><button class="btn btn-default" type="button" {{action 'cancelSelectedJobs' selectedItems }}> Cancel Selected jobs </button></p>
+        {{models-table data=runningJobs columns=pendingOrRunningColumns showColumnsDropdown=false showGlobalFilter=false pageSizeValues=pageSizeValues pageSize=5 showPageSize=true  selectRowOnClick=true multipleSelect=true cancel="cancelJob" delete="deleteJob" displayDataChangedAction="displayDataChanged" sendDisplayDataChangedAction=true}}
+
+    {{else if (eq type "finished" ) }}
+        <p><button class="btn btn-default" type="button" {{action 'deleteSelectedJobs' selectedItems }}> Delete Selected jobs </button></p>
+        {{models-table data=finishedJobs columns=finishedColumns showColumnsDropdown=false showGlobalFilter=false pageSizeValues=pageSizeValues pageSize=5 showPageSize=true  selectRowOnClick=true multipleSelect=true delete="deleteJob" displayDataChangedAction="displayDataChanged" sendDisplayDataChangedAction=true}}
+    {{/if}}
+
+</p>

@@ -7,8 +7,17 @@ _run() {
   service nginx start
   _set_env
   echo $PYTHONPATH
-  /app/slyd/bin/slyd -p 9002 -r /app/portiaui/dist &
-  /app/portia_server/manage.py runserver
+  #/app/slyd/bin/slyd -p 9002 -r /app/portiaui/dist &
+  #/app/portia_server/manage.py runserver
+  #service ssh start &
+  /usr/bin/mongod --config /etc/mongodb.conf --smallfiles  &
+  python -m splash.server >/app/splash_utils/splash.out 2>&1 &
+  #/app/slyd/bin/slyd -p 9002 -r /app/portiaui/dist > /app/slyd/slyd.out 2>&1 &
+  /app/slyd/do_slyd_start.sh &
+  /usr/local/bin/scrapyd > /app/scrapyd/scrapyd.out 2>&1 &
+  celery worker -A portia_dashboard -B -l info > /app/portia_server/schedule.out 2>&1 &
+  /app/portia_server/manage.py runserver > /app/portia_server/portia_server.out 2>&1
+
 }
 
 _set_env() {

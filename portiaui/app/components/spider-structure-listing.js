@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import {computedCanAddSample} from '../services/dispatcher';
+import {computedCanAddSample, computedCanAddAction} from '../services/dispatcher';
 
 export default Ember.Component.extend({
     browser: Ember.inject.service(),
@@ -14,6 +14,9 @@ export default Ember.Component.extend({
 
     canAddSample: computedCanAddSample('spider'),
     currentSample: Ember.computed.readOnly('uiState.models.sample'),
+
+    canAddAction: computedCanAddAction('spider'),
+    currentAction: Ember.computed.readOnly('uiState.models.action'),
 
     init() {
         this._super();
@@ -79,6 +82,18 @@ export default Ember.Component.extend({
 
         saveSample(sample) {
             sample.save();
+        },
+
+        addAction() {
+            this.get('dispatcher').addAction(this.get('spider'), /* redirect = */true);
+        },
+
+        removeAction(action) {
+            this.get('dispatcher').removeAction(action);
+        },
+
+        saveAction(action) {
+            action.save();
         }
     }
 });

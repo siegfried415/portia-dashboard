@@ -4,7 +4,21 @@
 Items
 =====
 
-An item refers to a single item of data scraped from the target website. A common example of an item would be a product for sale on an e-commerce website. It's important to differentiate **item** and **item definition**. In Portia, an item definition or item type refers to the schema of an item rather than the item itself. For example, ``book`` would be an item definition, and a specific book scraped from the website would be an item. An item definition consists of multiple fields, so using the example of a product you might have fields named ``name``, ``price``, ``manufacturer`` and so on. We use annotations to extract data from the page into each of these fields.
+An item refers to a single item of data scraped from the target website. A common example of an item would be a product for sale on an e-commerce website.
+
+
+.. image:: _static/portia-item.png
+    :alt: Dashboard item
+
+
+It's important to differentiate **item** and **item definition**. In Portia, an item definition or item type refers to the schema of an item rather than the item itself. For example, ``book`` would be an item definition, and a specific book scraped from the website would be an item. An item definition consists of multiple fields, so using the example of a product you might have fields named ``name``, ``price``, ``manufacturer`` and so on. We use annotations to extract data from the page into each of these fields.
+
+
+
+.. image:: _static/portia-item-definition.png
+    :alt: Item definition 
+
+
 
 To ensure certain fields are extracted, you can set the **Required** flag on each required field. Portia will discard an item if any required fields are missing. Portia will also remove any duplicate items by default.
 

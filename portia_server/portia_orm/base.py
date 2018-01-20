@@ -21,7 +21,9 @@ from .relationships import BaseRelationship
 from .serializers import FileSerializer
 from .snapshots import ModelSnapshots
 from .utils import (cached_property, class_property, short_guid, unspecified,
+                    get_ident, 
                     AttributeDict)
+
 
 __all__ = [
     'Model',
@@ -34,6 +36,7 @@ AUTO_PK = object()
 class ModelOpts(object):
     """Meta options for Models."""
     def __init__(self, meta, model):
+
         self.path = getattr(meta, 'path', None)
         if self.path is not None and not isinstance(self.path, string_types):
             raise ValueError("'path' option must be a string or None.")
@@ -61,6 +64,7 @@ class ModelOpts(object):
 class ModelMeta(type):
     """Meta class for models"""
     def __new__(mcs, name, bases, attrs):
+
         parents = [b for b in bases if isinstance(b, ModelMeta)]
         if not parents:
             return super(ModelMeta, mcs).__new__(mcs, name, bases, attrs)
@@ -173,6 +177,7 @@ class Model(with_metaclass(ModelMeta)):
 
     def __init__(self, storage=None, snapshots=None, _data_key=unspecified,
                  **kwargs):
+
         if _data_key is unspecified:
             if (self._pk_field not in kwargs or
                     (kwargs[self._pk_field] is AUTO_PK and storage is None)):

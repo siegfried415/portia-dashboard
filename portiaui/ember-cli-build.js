@@ -7,9 +7,17 @@ var mergeTrees = require('ember-cli/lib/broccoli/merge-trees');
 
 module.exports = function(defaults) {
     var app = new EmberApp(defaults, {
-        babel: {
-            includePolyfill: true
-        }
+      babel: {
+          includePolyfill: true
+      }
+    });
+
+    app.import('bower_components/bootstrap/dist/js/bootstrap.js');
+    app.import('bower_components/bootstrap/dist/css/bootstrap.css');
+    ['eot', 'svg', 'ttf', 'woff', 'woff2'].forEach(function(file) {
+        app.import('bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.' + file, {
+            destDir: 'assets/fonts'
+        });
     });
 
     app.import('bower_components/bootstrap-sass/assets/javascripts/bootstrap/tooltip.js');

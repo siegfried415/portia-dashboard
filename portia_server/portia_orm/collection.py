@@ -6,7 +6,8 @@ import sys
 
 from .exceptions import ImproperlyConfigured, ValidationError
 from .snapshots import ModelSnapshots
-from .utils import cached_property, unspecified, validate_type
+from .utils import cached_property, unspecified, validate_type, get_ident, get_call_trace 
+
 
 __all__ = [
     'set_related',
@@ -324,13 +325,16 @@ class ListDescriptor(object):
         self.attrname = attrname
 
     def __get__(self, instance, instance_type=None):
+
         if instance is None:
             return self
+
         try:
             collection = instance.get_data(self.attrname)
         except AttributeError:
             collection = self.new_collection(instance)
             instance.data_store.set(self.attrname, collection, 'committed')
+
         return collection.with_snapshots(instance.snapshots)
 
     def __set__(self, instance, values):

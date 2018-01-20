@@ -22,6 +22,7 @@ from storage.backends import ContentFile
 from portia_orm.datastore import data_store_context
 from portia_orm.models import Project
 
+
 from .utils import extract_data, _get_viewport, _html_path, decoded_html
 _VIEWPORT_RE = re.compile('^\d{3,5}x\d{3,5}$')
 _SPIDER_LOG = logging.getLogger('spider')
@@ -70,8 +71,11 @@ class Commands(object):
         project = self.data['project']
         spider = self.data['spider']
         sample = self.data.get('sample')
-        if not all((project, spider)):
+ 
+        #check sample too.
+        if not all((project, spider, sample)):
             return {'type': 'raw'}
+
         c = ItemChecker(self, project, spider, sample)
         # TODO: add option for user to view raw and js items in UI from WS
         items, changes, changed_values, links = c.extract()
@@ -90,7 +94,7 @@ class Commands(object):
         """Recompile sample with latest annotations"""
         if sample is None:
             sample = self._load_sample(data, project)
-            path = 'spiders/{}/{}/{{}}.html'.format(
+            path = 'spiders/{}/templates/{}/{{}}.html'.format(
                 self.data['spider'], self.data['sample'])
         else:
             path = _html_path(sample)
@@ -155,6 +159,9 @@ class Commands(object):
         except JsError as e:
             print(e)
         self.cookies()
+        
+        #return this to make _sendPromise awake. 
+        return {'ok': True}
 
     def resolve(self):
         result = {'id': self.data.get('_meta', {}).get('id')}
@@ -220,10 +227,10 @@ class Commands(object):
             self.socket.factory[self.socket].tab = None
 
     def _open_tab(self):
+        meta = self.data.get('_meta', self.data)
         if self.tab is None:
-            meta = self.data.get('_meta', self.data)
+            #meta = self.data.get('_meta', self.data)
             self.socket.open_tab(meta)
-
 
 def _process_items(items):
     for i, item in enumerate(items):

@@ -20,14 +20,17 @@ from slybot.starturls import (
     FragmentGenerator, FeedGenerator, IdentityGenerator, StartUrlCollection,
     UrlGenerator
 )
+
 from slybot.splash import DEFAULT_LUA_SOURCE
+
 from slybot.utils import (
     include_exclude_filter, IndexedDict, iter_unique_scheme_hostname,
     load_plugin_names, load_plugins, content_type
 )
 
+
 try:
-    from scrapy_splash.response import SplashJsonResponse
+    from scrapy_splash.response import SplashJsonResponse, SplashTextResponse 
     html_responses = (HtmlResponse, SplashJsonResponse)
 except ImportError:
     html_responses = (HtmlResponse,)
@@ -36,7 +39,6 @@ from w3lib.http import basic_auth_header
 STRING_KEYS = ['start_urls', 'exclude_patterns', 'follow_patterns',
                'allowed_domains', 'js_enabled', 'js_enable_patterns',
                'js_disable_patterns']
-
 
 class IblSpider(SitemapSpider):
     def __init__(self, name, spec, item_schemas, all_extractors, settings=None,
@@ -53,6 +55,19 @@ class IblSpider(SitemapSpider):
         super(IblSpider, self).__init__(name, **kw)
         spec = deepcopy(spec)
         self._add_spider_args_to_spec(spec, kw)
+
+        #if actions configured, then set js_enabled as true, and put url of each action to js_enable_patterns. 
+        self.actions = spec.get('actions', [])
+        '''
+        if len(self.actions):
+            spec['js_enabled']= True 
+            enable_patterns = spec.get('js_enable_patterns', [] )
+            for action in self.actions: 
+                enable_patterns.append(action.get('url'))
+            spec['js_enable_patterns']= enable_patterns
+        '''
+
+ 
         self._configure_js(spec, settings)
         self.plugins = self._configure_plugins(
             settings, spec, item_schemas, all_extractors)
@@ -63,6 +78,7 @@ class IblSpider(SitemapSpider):
         self._create_init_requests(spec)
         self._add_allowed_domains(spec)
         self.page_actions = spec.get('page_actions', [])
+       
 
     def _add_spider_args_to_spec(self, spec, args):
         for key, val in args.items():
@@ -113,6 +129,11 @@ class IblSpider(SitemapSpider):
         password = response.request.meta["password"]
         args, url, method = fill_login_form(response.url, response.body,
                                             username, password)
+
+        self.logger.debug(
+            "fill_login_form with url=%s, method=%s, args=%s" % (url, method, args )
+        )
+
         return FormRequest(url, method=method, formdata=args,
                            callback=self.after_login, dont_filter=True)
 
@@ -209,7 +230,8 @@ class IblSpider(SitemapSpider):
             if sitemap_body:
                 response._set_body(self._get_sitemap_body(response))
             return self.handle_xml(response)
-        if isinstance(response, html_responses):
+        if (isinstance(response, html_responses) or 
+            isinstance(response, SplashTextResponse )) :
             return self.handle_html(response)
         self.logger.debug(
             "Ignoring page with content-type=%r: %s" % (
@@ -264,10 +286,12 @@ class IblSpider(SitemapSpider):
                 settings.get('SPLASH_PASS', ''))
         self.splash_wait = settings.getint('SPLASH_WAIT', 5)
         self.splash_timeout = settings.getint('SPLASH_TIMEOUT', 30)
+        
         self.splash_js_source = settings.get(
             'SPLASH_JS_SOURCE', 'function(){}')
         self.splash_lua_source = settings.get(
             'SPLASH_LUA_SOURCE', DEFAULT_LUA_SOURCE)
+
         self._filter_js_urls = self._build_js_url_filter(spec)
 
     def _build_js_url_filter(self, spec):
@@ -291,7 +315,7 @@ class IblSpider(SitemapSpider):
                     'lua_source': self.splash_lua_source,
                     'images': 0,
                     'url': request.url,
-                    'baseurl': cleaned_url
+                    'baseurl': cleaned_url,
                 }
             }
         return request

@@ -12,7 +12,10 @@ Contents:
    projects
    spiders
    samples
+   actions 
+   jobs
    items
+   schedules 
    faq
 
 Indices and tables

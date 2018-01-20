@@ -3,7 +3,7 @@ import { storageFor } from 'ember-local-storage';
 import { cleanUrl, shortGuid } from '../utils/utils';
 import interactionEvent from '../utils/interaction-event';
 import treeMirrorDelegate from '../utils/tree-mirror-delegate';
-import { NAVIGATION_MODE } from '../services/browser';
+import { NAVIGATION_MODE, RECORD_MODE } from '../services/browser';
 
 
 function hashString(string) {
@@ -25,6 +25,8 @@ const BrowserIFrame = Ember.Component.extend({
     uiState: Ember.inject.service(),
     cookiesStore: storageFor('cookies'),
     pageLoadStore: storageFor('page-loads'),
+
+    //todo,just for test
     extractedItems: Ember.inject.service(),
 
     tagName: 'iframe',
@@ -117,12 +119,14 @@ const BrowserIFrame = Ember.Component.extend({
     }),
 
     _loadUrl() {
+
         const url = this.get('url');
         let baseurl = this.get('baseurl');
 
         if (!url || !url.includes('://') || !cleanUrl(url)) {
             return;
         }
+
         if (this.get('webSocket.closed')) {
             this.splashUrl = null;
             if (this.get('lastLoadPromise')) {
@@ -132,6 +136,7 @@ const BrowserIFrame = Ember.Component.extend({
             }
             return;
         }
+
         if (this.splashUrl === url) {
             return;
         }
@@ -156,6 +161,7 @@ const BrowserIFrame = Ember.Component.extend({
             }
             // Allow auto reload to happen two times
         }
+
         this.set('webSocket.reconnectComponent', null);
 
         this.visit(url, baseurl);
@@ -242,7 +248,10 @@ const BrowserIFrame = Ember.Component.extend({
     handleMetadataError() {
         this.set('loading', false);
         this.set('splashUrl', null);
+
+        //todo, just for debug 
         this.get('extractedItems').failExtraction('Failed Loading Page');
+
         this.get('browser').invalidateUrl();
         this.get('webSocket').send({
             _meta: {
@@ -316,26 +325,84 @@ const BrowserIFrame = Ember.Component.extend({
         this.unbindEventHandlers();
         var $iframe = $(this.element.contentDocument);
         $iframe.on(
-            ['keyup', 'keydown', 'keypress', 'input', 'mousedown', 'mouseup'].map(
+            ['keyup', 'keydown', 'keypress', 'input',  'mousedown', 'mouseup'].map(
                 eventName => `${eventName}.portia.portia-iframe`).join(' '),
             e => {
                 if (this.get('browser.mode') === NAVIGATION_MODE) {
                     this.postEvent(e);
                 }
             });
+
+        /*
+        //define handlers for input & click at modes (NAVIGATION, RECORD or ANNOTATION)
+        $iframe.on('input.portia.portia-iframe', e => {
+            if (this.get('browser.mode') === NAVIGATION_MODE) {
+                this.postEvent(e);
+            } 
+            else if(this.get('browser.mode') === RECORD_MODE ) {
+                this.inputHandlerRecord(e);
+            } 
+        });
+        */
+
         $iframe.on('click.portia.portia-iframe', e => {
             if (this.get('browser.mode') === NAVIGATION_MODE) {
                 this.clickHandlerBrowse(e);
+            } 
+            else if(this.get('browser.mode') === RECORD_MODE ) {
+                this.clickHandlerRecord(e);
             } else {
                 this.click();
                 return false;
             }
         });
+
         this.addFrameEventListener('focus', this.postEvent.bind(this), true);
         this.addFrameEventListener('blur', this.postEvent.bind(this), true);
-        this.addFrameEventListener('change', this.postEvent.bind(this), true);
+
+        //this.addFrameEventListener('change', this.postEvent.bind(this), true);
+        $iframe.on('change.portia.portia-iframe', e => {
+            if (this.get('browser.mode') === RECORD_MODE) {
+                this.changeHandlerRecord(e);
+            } 
+            else {
+                this.postEvent(e);
+            } 
+        });
+
         this.addFrameEventListener('scroll', e =>
             Ember.run.throttle(this, this.postEvent, e, 200), true);
+    },
+
+    clickHandlerRecord(evt) {
+        if (this.attrs.clickHandler) {
+            /*
+                For some reason, when using Ember.run, if the handler initiates
+                a route transition and the page in the iframe has a <base> tag,
+                the url is changed to the route uri concatenated to the iframe's
+                <base> url.
+                Using Ember.run.next fixes this.
+             */
+            Ember.run.next(this, this.attrs.clickHandler, ...arguments);
+        }
+        this.postEvent(evt);
+    },
+
+
+    /*
+    inputHandlerRecord(evt) {
+        if (this.attrs.inputHandler) {
+            Ember.run.next(this, this.attrs.inputHandler, ...arguments);
+        }
+        this.postEvent(evt);
+    },
+    */
+
+    changeHandlerRecord(evt) {
+        if (this.attrs.changeHandler) {
+            Ember.run.next(this, this.attrs.changeHandler, ...arguments);
+        }
+        this.postEvent(evt);
     },
 
     clickHandlerBrowse(evt) {
@@ -367,6 +434,7 @@ const BrowserIFrame = Ember.Component.extend({
         // permission problems and/or broken baseURI behaviour in different browsers.
         iframe.setAttribute('src', '/static/empty-frame.html?' + id);
         iframe.removeAttribute('srcdoc');
+
         // Using a message to workaround onload bug on some browsers (cough IE cough).
         let $win = $(window).bind('message', function onMessage(e){
             if(e.originalEvent.data.frameReady === id){

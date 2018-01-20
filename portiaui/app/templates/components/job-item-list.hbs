@@ -1,0 +1,4 @@
+<p> <h4> Items: </h4>
+    {{models-table data=jobItems columns=columns showColumnsDropdown=false showGlobalFilter=false showPageSize=true  selectRowOnClick=true multipleSelect=true  delete="removeJobItem" displayDataChangedAction="displayDataChanged" sendDisplayDataChangedAction=true}}
+    {{list-item-icon icon='remove' action=(action 'deleteSelectedJobItems' selectedItems )}}
+</p>

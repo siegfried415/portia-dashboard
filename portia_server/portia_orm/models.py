@@ -26,8 +26,11 @@ from .fields import (
     Boolean, Domain, Integer, List, Regexp, String, Url, DependantField,
     BelongsTo, HasMany, HasOne, CASCADE, CLEAR, PROTECT, StartUrl)
 from .snapshots import ModelSnapshots
-from .utils import unwrap_envelopes, short_guid, wrap_envelopes, strip_json
+from .utils import (unwrap_envelopes, short_guid, wrap_envelopes, strip_json, 
+                    get_ident, get_call_trace, 
+                   AttributeDict )
 from .validators import OneOf
+
 
 _CLEAN_ANNOTATED_HTML = re.compile('( data-scrapy-[a-z]+="[^"]+")|'
                                    '( data-tagid="\d+")')
@@ -226,7 +229,10 @@ class Spider(Model):
     login_password = String(default='', allow_none=True)
     project = BelongsTo(Project, related_name='spiders', on_delete=CASCADE,
                         ignore_in_file=True)
+
     samples = HasMany('Sample', related_name='spider', on_delete=CLEAR,
+                      only='id')
+    actions = HasMany('Action', related_name='spider', on_delete=CLEAR,
                       only='id')
 
     class Meta:
@@ -237,6 +243,7 @@ class Spider(Model):
 
     @classmethod
     def load(cls, storage, instance=None, project=None, **kwargs):
+
         if instance is None and project:
             # Load Spiders collection from file listing
             directories, files = storage.listdir('spiders')
@@ -259,9 +266,20 @@ class Spider(Model):
         return data
 
     @pre_load
+    def chain_load(self, data):
+        if set(data) == {'id'}:
+            return data
+        methods = (self.dump_templates, self.dump_actions )
+        for method in methods:
+            data = method(self, data)
+        return data
+
+    @staticmethod
     def dump_templates(self, data):
         if not data.get('templates'):
-            path = '/'.join(strip_json(self.context['path']).split('/')[:2])
+            path = '/'.join(strip_json(self.context['path']).split('/')[:2] )
+            path = path + '/templates' 
+ 
             storage = self.context['storage']
             try:
                 names = OrderedDict((strip_json(fname), 1)
@@ -275,11 +293,11 @@ class Spider(Model):
         templates = []
         for template in data['templates']:
             # Only migrate item templates
-            if template.get('page_type') != 'item':
+            if template.get('page_type') != 'item' and template.get('page_type') != 'links':
                 continue
             template['id'] = template.get('page_id') or template.get('name')
             templates.append(template['id'])
-            path = self.context['path']
+            path = self.context['path'] + '/templates' 
             path = '/'.join((strip_json(path).strip('/'),
                             '{}.json'.format(template['id'])))
             sample = json.dumps(template, sort_keys=True, indent=4)
@@ -288,6 +306,43 @@ class Spider(Model):
         path, storage = self.context['path'], self.context['storage']
         spider = json.dumps(data, indent=4, sort_keys=True)
         storage.save(path, ContentFile(spider, path))
+        return data
+
+    @staticmethod
+    def dump_actions(self, data):
+        if not data.get('actions'):
+            path = '/'.join(strip_json(self.context['path']).split('/')[:2] )
+            path = path + '/actions' 
+ 
+            storage = self.context['storage']
+            try:
+                names = OrderedDict((strip_json(fname), 1)
+                                    for fname in storage.listdir(path)[1])
+                data['actions'] = list(names)
+                return data
+            except OSError:
+                # Directory does not exist
+                data['actions'] = []
+                return data
+
+        actions = []
+        for action in data['actions']:
+            # Only migrate item templates
+            #if template.get('page_type') != 'item' and template.get('page_type') != 'links':
+            #    continue
+
+            action['id'] = action.get('id') or action.get('name')
+            actions.append(action['id'])
+            path = self.context['path'] + '/actions' 
+            path = '/'.join((strip_json(path).strip('/'),'{}.json'.format(action['id'])))
+            action_content = json.dumps(action, sort_keys=True, indent=4)
+            self.context['storage'].save(path, ContentFile(action_content, path))
+        data['actions'] = actions 
+
+        path, storage = self.context['path'], self.context['storage']
+        spider = json.dumps(data, indent=4, sort_keys=True)
+        storage.save(path, ContentFile(spider, path))
+
         return data
 
     @pre_load
@@ -322,6 +377,7 @@ class Spider(Model):
         data.pop('login_user', None)
         data.pop('login_password', None)
         data.pop('samples', None)
+        data.pop('actions', None)
         return OrderedDict(sorted(iteritems(data)))
 
     @staticmethod
@@ -365,7 +421,7 @@ class Sample(Model, OrderedAnnotationsMixin):
     name = String(required=True)
     url = Url(required=True)
     page_id = String(default='')
-    page_type = String(default='item', validate=OneOf(['item']))
+    page_type = String(default='item', validate=OneOf(['item', 'links']))
     spider = BelongsTo(Spider, related_name='samples', on_delete=CASCADE,
                        only='id')
     items = HasMany('Item', related_name='sample', on_delete=CLEAR)
@@ -375,7 +431,7 @@ class Sample(Model, OrderedAnnotationsMixin):
                            on_delete=CLEAR, ignore_in_file=True)
 
     class Meta:
-        path = u'spiders/{self.spider.id}/{self.id}.json'
+        path = u'spiders/{self.spider.id}/templates/{self.id}.json'
 
     def __repr__(self):
         return super(Sample, self).__repr__('name', 'url')
@@ -611,7 +667,7 @@ class Item(BaseAnnotation, OrderedAnnotationsMixin):
                           load_from='children', dump_to='children')
 
     class Meta:
-        path = u'spiders/{self.sample.spider.id}/{self.sample.id}.json'
+        path = u'spiders/{self.sample.spider.id}/templates/{self.sample.id}.json'
         owner = 'sample'
 
     def __repr__(self):
@@ -653,6 +709,7 @@ class Item(BaseAnnotation, OrderedAnnotationsMixin):
 
     @pre_load
     def remove_attributes(self, data):
+
         # remove the unused annotations attribute since it will conflict with
         # the annotations field which reads from/writes to the children
         # attribute
@@ -693,7 +750,6 @@ class Item(BaseAnnotation, OrderedAnnotationsMixin):
                                  next(iterkeys(data['schema_id'])))
         return data
 
-
 class Annotation(BaseAnnotation):
     attribute = String(default='content')
     text_content = String(default='content')
@@ -714,7 +770,7 @@ class Annotation(BaseAnnotation):
 
     class Meta:
         path = (u'spiders/{self.parent.sample.spider.id}'
-                u'/{self.parent.sample.id}.json')
+                u'/templates/{self.parent.sample.id}.json')
         owner = 'parent'
 
     def __repr__(self):
@@ -829,8 +885,8 @@ class OriginalBody(Model):
     @pre_load
     def populate_item(self, data):
         split_path = self.context['path'].split('/')
-        sample_id = split_path[2]
-        if len(split_path) == 3 and sample_id.endswith('.json'):
+        sample_id = split_path[3]
+        if len(split_path) == 4 and sample_id.endswith('.json'):
             sample_id = strip_json(sample_id)
         name = self.Meta.name
         return {
@@ -859,7 +915,7 @@ class OriginalBody(Model):
     class Meta:
         raw = True
         single = True
-        path = (u'spiders/{self.sample.spider.id}/{self.sample.id}/'
+        path = (u'spiders/{self.sample.spider.id}/templates/{self.sample.id}/'
                 u'original_body.html')
         name = 'original_body'
 
@@ -881,8 +937,8 @@ class RenderedBody(Model):
     @pre_load
     def populate_item(self, data):
         split_path = self.context['path'].split('/')
-        sample_id = split_path[2]
-        if len(split_path) == 3 and sample_id.endswith('.json'):
+        sample_id = split_path[3]
+        if len(split_path) == 4 and sample_id.endswith('.json'):
             sample_id = strip_json(sample_id)
         name = self.Meta.name
         return {
@@ -912,6 +968,76 @@ class RenderedBody(Model):
         raw = True
         single = True
         ignore_if_missing = True
-        path = (u'spiders/{self.sample.spider.id}/{self.sample.id}/'
+        path = (u'spiders/{self.sample.spider.id}/templates/{self.sample.id}/'
                 u'rendered_body.html')
         name = 'rendered_body'
+
+
+class Action(Model ):
+    id = String(primary_key=True)
+    name = String(required=True)
+    url = Url(required=True)
+    spider = BelongsTo(Spider, related_name='actions', on_delete=CASCADE, only='id')
+    commands = HasMany('Command', related_name='action', on_delete=CLEAR)
+
+
+    class Meta:
+        path = u'spiders/{self.spider.id}/actions/{self.id}.json'
+
+    def __repr__(self):
+        return super(Action, self).__repr__('name', 'url')
+
+
+    @classmethod
+    def load(cls, storage, instance=None, spider=None, **kwargs):
+
+        if instance is None and spider:
+            # Actions are stored in separate files, but they are listed in the
+            # Spider file. If this gets called, it means that file didn't exist
+            # so return an empty collection
+            return cls.collection()
+
+        return super(Action, cls).load(
+            storage, instance, spider=spider, **kwargs)
+
+
+class Command(Model):
+    id = String(primary_key=True)
+    url = String(default='')
+    cmd = String(default='')
+    tgt = String(default='')
+    val = String(default='')
+    ind = Integer(default=0)
+    action = BelongsTo(Action, related_name='commands', on_delete=CASCADE,
+                       ignore_in_file=True
+                      )
+
+    class Meta:
+        path = u'spiders/{self.action.spider.id}/actions/{self.action.id}.json'
+        owner = 'action'
+ 
+    
+    @property
+    def owner_action(self):
+        if self.action:
+            return self.action
+        return None
+
+    @pre_load
+    def get_command_data(self, data) : 
+        return data
+
+
+    @post_dump
+    def add_attributes(self, data):
+        data.update({
+            'id': data.get('id'),
+            'url': data.get('url'),
+            'cmd': data.get('cmd'),
+            'tgt': data.get('tgt'),
+            'val': data.get('val'),
+            'ind': data.get('ind'),
+        })
+        return OrderedDict(sorted(iteritems(data)))
+
+

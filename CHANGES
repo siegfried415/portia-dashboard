@@ -1,3 +1,11 @@
+portia-dashboard 2.0.8 - 2018-01-22
+Add link annotation to get links to be crawled 
+Add dashboard to get status of spider and scraped items visully
+Record user interactions to web page, and playback them 
+Use celery to run periodic jobs
+By scrapyd, spider can be deployed, run or scheduled from portiaui 
+Splash server was started for spider with Javascript enabled. 
+
 2.0.8 - 2017-04-20
 
 Limit project and spider id length to avoid causing issues in windows

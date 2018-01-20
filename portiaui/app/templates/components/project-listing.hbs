@@ -69,6 +69,14 @@
                     <li><a href={{downloadCodeUrl}} target='_blank'>
                         {{list-item-icon class="icon" icon="code"}}Download as Scrapy
                     </a> </li>
+
+
+                    <li><a {{action (chain-actions (action 'deploy') options.closeMenu) }}>
+                        {{list-item-icon class="icon" icon="publish"}} Deploy project
+                        </a>
+                    </li>
+
+
                 {{/list-item-icon-menu}}
                 <div class={{if isPulsing 'droplet'}}></div>
 

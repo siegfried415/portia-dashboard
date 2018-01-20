@@ -146,3 +146,46 @@ As you can see, the problem lies with the fact that in layout B the description 
 Instead we need to modify layout A's sample, and mark the ``description`` annotation as **Required**. With this added constraint, items displayed with layout B will not be matched against layout A's sample due to the missing ``description`` field, so the spider will proceed onto layout B's sample which will extract the data successfully.
 
 :ref:`Click here to learn more about Multiple Samples <multiple-samples>`.
+
+
+.. _action-example:
+
+Using Action to login into sites 
+=====================================================
+
+For those sites which need login, you can record interactions with those sites, such as click login form, input username and password, and playback the actions.  
+
+.. image:: _static/portia-action-commands-editing.png
+    :alt: Commands editing
+
+
+
+
+.. _annotation-types:
+
+Link annotations and Item annotations
+=====================================================
+
+Sometimes, we need get product 's detailed information which can't be crawled from index page, in this case, a two-steps crawling will solve the problem. For example, link annotations is created at first to get links to products on index page, then item annotations are created to get detail product infomation.
+
+Comaping with url pattern, link annotation is much easier way to define crawling target for one can select target links visually just by mouse click. 
+
+In order to create link annotation, you can select ``links`` at sample 's page types list:  
+
+.. image:: _static/portia-annotation-types.png
+    :alt: Annotation types
+
+
+Like item annotation decribed above, you can use the wand |portia-icon-wand| button or repeating element tool |portia-icon-add-repeat| to select multiple target links by annotating the first link's element and then clicking the second link's element. Portia will detect all similar links on the page and create link annotations for each of them.
+
+
+.. image:: _static/portia-link-annotation.png
+    :alt: Link annotation  
+
+
+Then, create a item annotation to get item 's properties  you want. 
+
+.. image:: _static/portia-item-annotation.png
+    :alt: Item annotation  
+
+When crawling is started, link annotations is checked to every page to see if there are links need to be crawled. If there are, those target links will be extracted to append to crawling queue, otherwise item annotations will be checked to get items. 

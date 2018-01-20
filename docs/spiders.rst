@@ -50,15 +50,30 @@ The ``Configure url patterns`` option lets you set follow and exclude patterns a
 Running a spider
 ================
 
-Portia will save your projects in ``slyd/data/projects``. You can use ``portiacrawl`` to run a spider::
+You can run a spider by select dropdown menu item ``Run this spider`` under Spider.
 
-    portiacrawl PROJECT_PATH SPIDER_NAME
+.. image:: _static/portia-run-spider.png
+    :alt: Run a spider 
 
-where ``PROJECT_PATH`` is the path of the project and ``SPIDER_NAME`` is a spider that exists within that project. You can list the spiders for a project with the following::
 
-    portiacrawl PROJECT_PATH
+.. _schedule-spider:
 
-Portia spiders are ultimately `Scrapy <http://scrapy.org>`_ spiders. You can pass Scrapy arguments when running with ``portiacrawl`` using the ``-a`` option. You can also specify a custom settings module using the ``--settings`` option. The `Scrapy documentation <http://doc.scrapy.org/en/latest>`_ contains full details on available options and settings.
+Schedule a spider
+================
+
+In order to run spider once in a while, you can select ``Schedule this spider`` to put spider into schedule queues, wich will be run at fixed intervals. 
+
+
+.. image:: _static/portia-schedule-spider.png
+    :alt: Schedule a spider 
+
+At schedule options dialog, you can set intervals and run times.  
+
+
+.. image:: _static/portia-schedule-options.png
+    :alt: Schedule options
+
+
 
 Minimum items threshold
 =======================

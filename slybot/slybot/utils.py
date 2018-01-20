@@ -160,11 +160,19 @@ def include_exclude_filter(include_patterns, exclude_patterns):
     if include_patterns:
         pattern = include_patterns[0] if len(include_patterns) == 1 else \
             "(?:%s)" % '|'.join(include_patterns)
+
+        #get exactly match only 
+        #pattern ="%s$" % pattern 
+
         includef = re.compile(pattern).search
         filterf = includef
     if exclude_patterns:
         pattern = exclude_patterns[0] if len(exclude_patterns) == 1 else \
             "(?:%s)" % '|'.join(exclude_patterns)
+
+        #get exactly match only 
+        #pattern ="%s$" % pattern 
+
         excludef = re.compile(pattern).search
         if not includef:
             filterf = lambda x: not excludef(x)
@@ -366,6 +374,11 @@ class SpiderLoader(object):
                 templates = self.load_external_templates(self.spider_dir,
                                                          spider_name)
                 spec.setdefault("templates", []).extend(templates)
+
+            #load actions 
+            actions = self.load_actions(self.spider_dir, spider_name)
+            spec.setdefault("actions", []).extend(actions)
+
             return spec
         except ValueError as e:
             raise ValueError(
@@ -391,12 +404,14 @@ class SpiderLoader(object):
         `spider_name`.
         """
         spider_dir = self.storage.rel_path('spiders', spider_name)
-        if not self.storage.isdir(spider_dir):
+        if not self.storage.isdir(spider_dir + '/templates' ):
             raise StopIteration
-        for name in self.storage.listdir(spider_dir):
+
+        #add '/template' 
+        for name in self.storage.listdir(spider_dir + '/templates' ):
             if not name.endswith('.json'):
                 continue
-            path = self.storage.rel_path(spider_dir, name)
+            path = self.storage.rel_path(spider_dir + '/templates', name)
             sample = self.storage.open(path)
             if not sample:
                 continue
@@ -411,3 +426,19 @@ class SpiderLoader(object):
                 sample['original_body'] = u'<html></html>'
             version = sample.get('version', '')
             yield _build_sample(sample, legacy=version < '0.13.0')
+
+
+    def load_actions(self, spec_base, spider_name):
+        spider_dir = self.storage.rel_path('spiders', spider_name)
+        if not self.storage.isdir(spider_dir + '/actions' ):
+            raise StopIteration
+
+        for name in self.storage.listdir(spider_dir + '/actions' ):
+            if not name.endswith('.json'):
+                continue
+            path = self.storage.rel_path(spider_dir + '/actions', name)
+            action = self.storage.open(path)
+            if not action:
+                continue
+
+            yield action

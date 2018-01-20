@@ -23,6 +23,7 @@ from .extraction import SlybotIBLExtractor
 _CLUSTER_NA = 'not available'
 _CLUSTER_OUTLIER = 'outlier'
 
+import six 
 
 class Annotations(object):
     """
@@ -89,12 +90,31 @@ class Annotations(object):
                 self.extractors.append(SlybotIBLExtractor(list(group)))
 
         # generate ibl extractor for links pages
+        """
         _links_pages = [dict_to_page(t, 'annotated_body')
                         for t in templates if t.get('page_type') == 'links']
         _links_item_descriptor = create_slybot_item_descriptor({'fields': {}})
         self._links_ibl_extractor = InstanceBasedLearningExtractor(
             [(t, _links_item_descriptor) for t in _links_pages]) \
             if _links_pages else None
+        """
+
+        _links_pages = [(t.get('scrapes'), dict_to_page(t, 'annotated_body'), t.get('version', '0.12.0')) for t in templates if t.get('page_type') == 'links']
+
+        _links_page_descriptor_pairs = []
+        for default, template, v in _links_pages:
+            descriptors = OrderedDict()
+            for schema_name, schema in items.items():
+                item_descriptor = create_slybot_item_descriptor(schema, schema_name)
+                descriptors[schema_name] = item_descriptor
+            descriptor = descriptors.values() or [{}]
+            descriptors['#default'] = descriptors.get(default, descriptor[0])
+            _links_page_descriptor_pairs.append((template, descriptors, v))
+
+        self._links_ibl_extractor = SlybotIBLExtractor(
+            [(template, descriptors, version ) for template, descriptors,version  in _links_page_descriptor_pairs])\
+            if _links_page_descriptor_pairs else None
+
 
         self.build_url_filter(spec)
         # Clustering
@@ -149,13 +169,15 @@ class Annotations(object):
         return [], []
 
     def _do_extract_items_from(self, htmlpage, extractor, response=None):
+
+
         # Try to predict template to use
         template_cluster, pref_template_id = self._cluster_page(htmlpage)
         extracted, template = extractor.extract(htmlpage, pref_template_id)
         extracted = extracted or []
         link_regions = []
         for ddict in extracted:
-            link_regions.extend(arg_to_iter(ddict.pop("_links", [])))
+            link_regions.extend(arg_to_iter(ddict.pop("links", [])))
         descriptor = None
         unprocessed = False
         if template is not None and hasattr(template, 'descriptor'):
@@ -278,6 +300,10 @@ class Annotations(object):
         """Process link regions if any, and generate requests"""
         if link_regions:
             for link_region in link_regions:
+
+                #if isinstance(link_region, six.string_types) :
+                #    link_region = link_region.decode(htmlpage.encoding)
+
                 htmlregion = HtmlPage(htmlpage.url, htmlpage.headers,
                                       link_region, encoding=htmlpage.encoding)
                 for request in self._requests_to_follow(htmlregion):
@@ -288,19 +314,27 @@ class Annotations(object):
 
     def _requests_to_follow(self, htmlpage):
         if self._links_ibl_extractor is not None:
-            extracted = self._links_ibl_extractor.extract(htmlpage)[0]
-            if extracted:
-                extracted_regions = extracted[0].get('_links', [])
+            #bugfix,self._links_ibl_extractor.extract will find a serious of link
+            #when it was create by repeated annotation. 
+            extracted_list = self._links_ibl_extractor.extract(htmlpage)[0]
+            if extracted_list is not None : 
                 seen = set()
-                for region in extracted_regions:
-                    htmlregion = HtmlPage(htmlpage.url, htmlpage.headers,
+                for extracted in extracted_list:
+                    #every key doesn't start with '_' is links attribute. 
+                    for key in extracted.keys():
+                        if not str(key).startswith('_') : 
+                            extracted_regions = extracted.get(key, []) 
+                            for region in extracted_regions:
+                                #if isinstance(region, six.string_types) :
+                                #    region = region.decode(htmlpage.encoding)
+
+                                htmlregion = HtmlPage(htmlpage.url, htmlpage.headers,
                                           region, encoding=htmlpage.encoding)
-                    for request in self._request_to_follow_from_region(
-                            htmlregion):
-                        if request.url in seen:
-                            continue
-                        seen.add(request.url)
-                        yield request
+                                for request in self._request_to_follow_from_region( htmlregion):
+                                    if request.url in seen:
+                                        continue
+                                    seen.add(request.url)
+                                    yield request
         else:
             for request in self._request_to_follow_from_region(htmlpage):
                 yield request

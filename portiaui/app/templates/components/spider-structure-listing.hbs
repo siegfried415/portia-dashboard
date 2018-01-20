@@ -1,4 +1,4 @@
-{{#tree-list hide=currentSample}}
+{{#tree-list hide=(or currentSample currentAction) }}
     {{#tree-list-item hasChildren=true as |options|}}
         {{#if (eq options.section "item")}}
             {{#list-item-text class="title"}}
@@ -71,7 +71,7 @@
     {{/tree-list-item}}
 {{/tree-list}}
 
-{{#tree-list hide=currentSample}}
+{{#tree-list hide=(or currentSample currentAction) }}
     {{#tree-list-item hasChildren=true as |options|}}
         {{#if (eq options.section "item")}}
             {{#list-item-text class="title"}}
@@ -94,7 +94,7 @@
     {{/tree-list-item}}
 {{/tree-list}}
 
-{{#tree-list}}
+{{#tree-list hide=currentAction}}
     {{#tree-list-item hasChildren=true as |options|}}
         {{#if (eq options.section "item")}}
             {{#list-item-text class="title"}}
@@ -150,10 +150,82 @@
                         {{list-item-editable value=(mut sample.name) editing=(mut sample.new) onChange=(action 'saveSample' sample)}}
                     {{/link-to}}
 
+                    {{#list-item-page-type sample=sample}}
+                        Change page type
+                    {{/list-item-page-type}}
+
                     {{#list-item-icon-menu icon='vertical-ellipsis' as |options|}}
                         {{dropdown-delete
                           onDelete=(action 'removeSample' sample)
                           text='Delete Sample'
+                        }}
+                    {{/list-item-icon-menu}}
+
+                {{/tree-list-item}}
+            {{/each}}
+        {{/if}}
+    {{/tree-list-item}}
+{{/tree-list}}
+
+
+{{#tree-list hide=currentSample}}
+    {{#tree-list-item hasChildren=true as |options|}}
+        {{#if (eq options.section "item")}}
+            {{#list-item-text class="title"}}
+                Action {{#animation-container class="inline" hide=currentAction setHeight=false}}s{{/animation-container}}
+                {{#animation-container class="inline" setHeight=false}}
+                    {{#help-icon}}
+                        Action 
+                        <p>
+                            A Action is a series of commands which can be apply to current page.
+                        </p>
+                        <p>
+                            User interaction such as mouse clik, keyboard input can be recorded as actions, when the page was crawled those actions will be played.  
+                        </p>
+                        <p>
+                            Action is especially useful for those pages that need user to give inputs, such as 
+                            login, or search, and so on.
+                        </p>
+                    {{/help-icon}}
+                {{/animation-container}}
+            {{/list-item-text}}
+            {{#if currentAction}}
+                {{#animation-container}}
+                    {{#link-to 'projects.project.spider' spider}}
+                        Show all actions 
+                    {{/link-to}}
+                {{/animation-container}}
+            {{else}}
+                {{#tooltip-container tooltipFor="add-action-button" text="Create a new Action from the current page" tooltipContainer='body'}}
+                    {{list-item-icon id="add-action-button" icon='add' disabled=(not canAddAction) action=(action 'addAction')}}
+                {{/tooltip-container}}
+            {{/if}}
+        {{else if (eq options.section "subtrees")}}
+            {{#tree-list-item hide=(or spider.actions.isPending spider.actions.length) as |options|}}
+                {{#list-item-text class="text-center"}}
+                    This spider has no actions 
+                {{/list-item-text}}
+            {{/tree-list-item}}
+            {{#tree-list-item hide=(or spider.actions.isPending spider.actions.length) class="help" as |options|}}
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        Navigate to a web page that need apply actions, and create a new Action 
+                        to begin record the actions.
+                    </p>
+                </div>
+            {{/tree-list-item}}
+            {{#each spider.actions as |action|}}
+                {{#tree-list-item hide=(and currentAction (not-eq action currentAction)) as |options|}}
+                    {{#link-to 'projects.project.spider.action' action (query-params url=action.url baseurl=null) current-when='projects.project.spider.action'}}
+                        {{indentation-spacer}}
+                        {{list-item-icon icon='action'}}
+                        {{list-item-editable value=(mut action.name) editing=(mut action.new) onChange=(action 'saveAction' action)}}
+                    {{/link-to}}
+
+                    {{#list-item-icon-menu icon='vertical-ellipsis' as |options|}}
+                        {{dropdown-delete
+                          onDelete=(action 'removeAction' action)
+                          text='Delete Action'
                         }}
                     {{/list-item-icon-menu}}
 

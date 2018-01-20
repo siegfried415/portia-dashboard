@@ -6,6 +6,9 @@ const Sample = BaseModel.extend({
     name: DS.attr('string'),
     url: DS.attr('string'),
     spider: DS.belongsTo(),
+
+    page_type: DS.attr('string'),
+
     items: DS.hasMany(),
     body: DS.attr('string', {
         default: 'original_body'

@@ -13,6 +13,14 @@ export default Ember.Component.extend({
     projects: [],
     isCopyingSpider: false,
 
+
+    api: Ember.inject.service(),
+
+    isShowingSchedulOptionsModal:false,
+    interval : 3000,
+    times : 1,
+
+
     init() {
         this._super(...arguments);
         const projectId = this.get('project.id');
@@ -37,6 +45,54 @@ export default Ember.Component.extend({
     },
 
     actions: {
+        toggleScheduleOptionsModal(spider) {
+            this.set('spider', spider);
+            this.toggleProperty('isShowingScheduleOptionsModal');
+        },
+
+        runSpider(spider) {
+            this.get('api').post('schedule', {
+                model: spider,
+                jsonData: {data: {type: 'spiders', id: spider.id}}
+            }).then(() => {
+                this.get('notificationManager').showNotification(
+                    'Your spider has been scheduled successfully');
+            }, data => {
+                let error = data.errors[0];
+                if (error.status > 499) {
+                    throw data;
+                }
+                this.get('notificationManager').showNotification(error.title, error.detail);
+            });
+        },
+
+
+        scheduleSpider() {
+            var __this = this;
+            var spider = this.get('spider');
+            var project = spider.get('project');
+
+            $.getJSON('/dashboard/schedule/add',  {
+                project: project.get('id'),
+                spider:spider.get('id'),
+                interval : this.get('interval'),
+                times : this.get('times')
+            }, function(data) {
+                Ember.get(__this, 'notificationManager').showNotification(
+                    'Your spider has been scheduled successfully', data);
+            }, data => {
+                let error = data.errors[0];
+                if (error.status > 499) {
+                    throw data;
+                }
+                Ember.get(__this, 'notificationManager').showNotification(error.title,
+                                                                          error.detail);
+            });
+
+            this.toggleProperty('isShowingScheduleOptionsModal');
+        },
+
+
         validateSpiderName(spider, name) {
             const nm = this.get('notificationManager');
             if(!/^[a-zA-Z0-9][a-zA-Z0-9_\.-]*$/.test(name)) {

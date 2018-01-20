@@ -23,6 +23,7 @@ from portia_orm.exceptions import ImproperlyConfigured
 from portia_orm.fields import Field as OrmField
 from portia_orm.relationships import BaseRelationship, HasMany
 
+
 __all__ = [
     'JsonApiSerializer',
     'JsonApiPolymorphicSerializer',
@@ -274,6 +275,7 @@ class JsonApiSerializer(with_metaclass(JsonApiSerializerMeta, BaseSchema)):
         return instance
 
     def create(self, validated_data):
+
         model = self.opts.model
 
         processed_attributes = {

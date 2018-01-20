@@ -10,6 +10,9 @@ from .resources.samples import SampleRoute
 from .resources.schemas import SchemaRoute
 from .resources.spiders import SpiderRoute
 
+from .resources.actions import ActionRoute
+from .resources.commands import CommandRoute 
+
 router = Router()
 router.register(r'projects', ProjectRoute, base_name='projects')
 
@@ -23,10 +26,14 @@ schema_router.register(r'fields', FieldRoute, base_name='fields')
 
 spider_router = NestedRouter(project_router, r'spiders')
 spider_router.register(r'samples', SampleRoute, base_name='samples')
+spider_router.register(r'actions', ActionRoute, base_name='actions')
 
 sample_router = NestedRouter(spider_router, r'samples')
 sample_router.register(r'items', ItemRoute, base_name='items')
 sample_router.register(r'annotations', AnnotationRoute, base_name='annotations')
+
+action_router = NestedRouter(spider_router, r'actions')
+action_router.register(r'commands', CommandRoute, base_name='commands')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
@@ -34,4 +41,5 @@ urlpatterns = [
     url(r'^', include(schema_router.urls)),
     url(r'^', include(spider_router.urls)),
     url(r'^', include(sample_router.urls)),
+    url(r'^', include(action_router.urls)),
 ]

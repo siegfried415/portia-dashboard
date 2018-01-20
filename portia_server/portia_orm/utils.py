@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from six import iteritems
 
 from .exceptions import ValidationError
+import inspect 
 
 __all__ = [
     'cached_property',
@@ -93,3 +94,17 @@ def strip_json(fname):
     if fname.endswith('.json'):
         return fname[:-JSON_LEN]
     return fname
+
+def get_ident():
+    ident = ""
+    for s in inspect.stack() :
+        ident = ident + ' '
+    return ident
+
+def get_call_trace(length = 3):
+    trace = ""
+    i = 1
+    while i <= length :
+        trace = trace + " by " + inspect.stack()[i][3]
+        i = i + 1
+    return trace 

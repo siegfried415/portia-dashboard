@@ -1,0 +1,57 @@
+<span>Tools</span>
+
+<div class="tool-bar">
+    <div class="btn-group" role="group">
+    {{#if playing }}
+        {{#tooltip-container tooltipFor="stop-playback-tool-button" placement='left' tooltipContainer='body' as |options| }}
+            {{#if (eq options.section 'tooltip')}}
+                Stop play 
+            {{else}}
+                <button id="stop-playback-tool-button" type="button" class="btn btn-default" disabled={{recording}} {{action 'stopPlayback'}}>
+                    {{icon-button icon='stop-playback'}}
+                </button>
+            {{/if}}
+        {{/tooltip-container}}
+    {{else}}
+        {{#tooltip-container tooltipFor="playback-tool-button" placement='left' tooltipContainer='body' as |options| }}
+            {{#if (eq options.section 'tooltip')}}
+                Play back 
+                <p>
+                    When play back button is clicked, the commands recorded will be play back. 
+                </p>
+            {{else}}
+                <button id="playback-tool-button" type="button" class="btn btn-default" disabled={{recording}} {{action 'startPlayback'}}>
+                    {{icon-button icon='playback'}}
+                </button>
+            {{/if}}
+        {{/tooltip-container}}
+    {{/if}}
+
+    {{#if recording }}
+        {{#tooltip-container tooltipFor="stop-record-tool-button" placement='left' tooltipContainer='body' as |options| }}
+            {{#if (eq options.section 'tooltip')}}
+                Stop record
+            {{else}}
+                <button id="stop-record-tool-button" type="button" class="btn btn-default" disabled={{playing}} {{action 'stopRecord'}}>
+                    {{icon-button icon='stop-record'}}
+                </button>
+            {{/if}}
+        {{/tooltip-container}}
+    {{else}}
+        {{#tooltip-container tooltipFor="record-tool-button" placement='left' tooltipContainer='body' as |options| }}
+            {{#if (eq options.section 'tooltip')}}
+                Start record
+                <p>
+                    When record button is clicked, user interaction with current page will be recorded as commands of current action. 
+                </p>
+            {{else}}
+                <button id="record-tool-button" type="button" class="btn btn-default" disabled={{playing}} {{action 'startRecord'}}>
+                    {{icon-button icon='record'}}
+                </button>
+            {{/if}}
+        {{/tooltip-container}}
+
+    {{/if}}
+    </div>
+
+</div>

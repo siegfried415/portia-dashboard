@@ -3,7 +3,7 @@
         {{icon-button icon='sample'}} Edit sample
     {{/link-to}}
 {{else}}
-    {{#tooltip-container tooltipFor="add-spider-browser-button" tooltipContainer='body' as |options|}}
+    {{#tooltip-container tooltipFor="add-spider-sample-button" tooltipContainer='body' as |options|}}
         {{#if (eq options.section 'tooltip')}}
             {{#unless editableSample}}
                 Create a new sample from the current page so you can start annotating the data you want to extract
@@ -14,7 +14,7 @@
                 {{/unless}}
             {{/unless}}
         {{else}}
-            <button id="add-spider-browser-button" type="button" class="btn btn-primary" disabled={{disableSample}} {{action "addSample"}}>
+            <button id="add-spider-sample-button" type="button" class="btn btn-primary" disabled={{disableSample}} {{action "addSample"}}>
                 {{icon-button icon='sample'}} New sample
             </button>
         {{/if}}

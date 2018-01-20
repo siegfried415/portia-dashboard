@@ -32,6 +32,20 @@ export default Ember.Component.extend({
             }
         },
 
+        /*
+        viewPortInput() {
+            if (this.attrs.inputHandler) {
+                this.attrs.inputHandler(...arguments);
+            }
+        },
+        */
+
+        viewPortChange() {
+            if (this.attrs.changeHandler) {
+                this.attrs.changeHandler(...arguments);
+            }
+        },
+
         reconnectWebsocket() {
             this.get('webSocket').connect();
         }

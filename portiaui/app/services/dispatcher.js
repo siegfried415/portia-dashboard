@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import Sample from '../models/sample';
+import Action from '../models/action';
 import { includesUrl } from '../utils/start-urls';
 import buildStartUrl from '../models/start-url';
 import {createStructure} from './annotation-structure';
@@ -25,6 +26,18 @@ export function computedCanAddSample(spiderPropertyName) {
     });
 }
 
+export function computedCanAddAction(spiderPropertyName) {
+    return Ember.computed('browser.url', 'browser.document', 'browser.loading',
+                          `${spiderPropertyName}.actions.@each.url`,
+                          'browser.loading', function() {
+        const url = this.get('browser.url');
+        const document = this.get('browser.document');
+        const loading = this.get('browser.loading');
+        return (url && document && !loading &&
+                !this.get(`${spiderPropertyName}.actions`).isAny('url', url));
+    });
+}
+
 export function computedEditableSample(spiderPropertyName) {
     return Ember.computed('browser.url', `${spiderPropertyName}.samples.@each.url`, function() {
         const url = this.get('browser.url');
@@ -32,6 +45,16 @@ export function computedEditableSample(spiderPropertyName) {
             return;
         }
         return this.get(`${spiderPropertyName}.samples`).findBy('url', url);
+    });
+}
+
+export function computedEditableAction(spiderPropertyName) {
+    return Ember.computed('browser.url', `${spiderPropertyName}.actions.@each.url`, function() {
+        const url = this.get('browser.url');
+        if (!url) {
+            return;
+        }
+        return this.get(`${spiderPropertyName}.actions`).findBy('url', url);
     });
 }
 
@@ -172,6 +195,7 @@ export default Ember.Service.extend({
         const sample = store.createRecord('sample', {
             name,
             body: 'original_body',
+            page_type : 'item',
             url,
             spider
         });
@@ -528,5 +552,85 @@ export default Ember.Service.extend({
             updateStructureSelectors(structure, selectorMatcher);
             return null;
         });
-    }
+    },
+
+    addAction(spider, redirect = false) {
+        const url = this.get('browser.url');
+        const document = this.get('browser.document');
+        const loading = this.get('browser.loading');
+        if (!url || !document || loading) {
+            return;
+        }
+
+        const store = this.get('store');
+        const name = Action.normalizeTitle(this.get('browser.document').title);
+        const action = store.createRecord('action', {
+            name,
+            body: 'original_body',
+            url,
+            spider
+        });
+
+        action.save().then(() => /* {
+            this.get('webSocket')._sendPromise({
+                _command: 'save_html',
+                project: spider.get('project.id'),
+                spider: spider.get('id'),
+                action: action.get('id')
+            }).then(() => */  {
+                if (redirect) {
+                    action.set('new', true);
+                    const routing = this.get('routing');
+                    routing.transitionTo('projects.project.spider.action', [action], {}, true);
+                }
+            });
+        //});
+        return action;
+    },
+
+    removeAction(action) {
+        const currentAction = this.get('uiState.models.action');
+        if (action === currentAction) {
+            const routing = this.get('routing');
+            routing.transitionTo('projects.project.spider', [], {}, true);
+        }
+        action.destroyRecord();
+    },
+
+
+    addCommand(action, url, command, target, value, index, redirect = false) {
+    
+        const store = this.get('store');
+        const cmd = store.createRecord('command', {
+            url: url, 
+            cmd: command,
+            tgt : target,
+            val : value, 
+            action: action,
+            ind : index, 
+        });
+
+        cmd.save().then(() => {
+            if (redirect) {
+                command.set('new', true);
+                const routing = this.get('routing');
+                routing.transitionTo('projects.project.spider.action.data', [action], {}, true);
+            }
+        });
+
+        return cmd;
+
+    },
+
+    removeCommand(command) {
+        /*
+        const currentAction = this.get('uiState.models.action');
+        if (action === currentAction) {
+            const routing = this.get('routing');
+            routing.transitionTo('projects.project.spider', [], {}, true);
+        }
+        */
+        command.destroyRecord();
+    },
+
 });

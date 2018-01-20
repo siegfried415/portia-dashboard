@@ -19,6 +19,7 @@ from ..jsonapi.exceptions import (JsonApiFeatureNotAvailableError,
 from ..utils.download import ProjectArchiver, CodeProjectArchiver
 from ..utils.copy import ModelCopier, MissingModelException
 
+from ..utils.deploy import ProjectDeployer
 
 class ProjectDownloadMixin(object):
     @detail_route(methods=['get'])
@@ -228,5 +229,15 @@ class ProjectRoute(ProjectDownloadMixin, BaseProjectRoute,
                 for type_, path, old_path
                 in storage.changed_files()]
 
-    def deploy(self):
-        pass
+    @detail_route(methods=['put', 'post'])
+    def deploy(self, *args, **kwargs):
+        deployer = ProjectDeployer(self.project, self.storage)
+        response = deployer.deploy()
+
+        #response = self.retrieve()
+        data = OrderedDict()
+        #data.update(response)
+        data.setdefault('meta', {})['deployed'] = response
+
+        return Response(data, status=HTTP_200_OK)
+

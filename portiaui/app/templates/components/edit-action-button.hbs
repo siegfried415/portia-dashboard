@@ -1,0 +1,22 @@
+{{#if editableAction }}
+    {{#link-to 'projects.project.spider.action' editableAction class="btn btn-primary"}}
+        {{icon-button icon='action'}} Edit action 
+    {{/link-to}}
+{{else}}
+    {{#tooltip-container tooltipFor="add-spider-action-button" tooltipContainer='body' as |options|}}
+        {{#if (eq options.section 'tooltip')}}
+            {{#unless editableAction}}
+                Create a new action from the current page so you can interact with the page, such as click or input. 
+                {{#unless sameDomain}}
+                    <p>
+                        This page is from a different domain to your spider. Maybe you would like to create a new spider for this page?
+                    </p>
+                {{/unless}}
+            {{/unless}}
+        {{else}}
+            <button id="add-spider-action-button" type="button" class="btn btn-primary" disabled={{disableAction}} {{action "addAction"}}>
+                {{icon-button icon='action'}} New action 
+            </button>
+        {{/if}}
+    {{/tooltip-container}}
+{{/if}}

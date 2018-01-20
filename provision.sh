@@ -34,6 +34,8 @@ install_splash -- install splash
 install_python_deps -- install python-level dependencies
 configure_initctl -- installs initctl configuration
 configure_nginx -- installs nginx configuration
+configure_scrapyd -- installs scrapyd configuration 
+configure_slyd -- installs slyd watch script
 cleanup -- remove unnecessary files. DON'T RUN UNLESS IT'S INSIDE AN IMAGE AND YOU KNOW WHAT YOU ARE DOING
 
 EOF
@@ -51,6 +53,8 @@ activate_venv () {
 install_deps(){
     echo deb http://nginx.org/packages/ubuntu/ trusty nginx > /etc/apt/sources.list.d/nginx.list
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+    apt-get update 
+    apt-get -y install wget 
     wget -O - https://deb.nodesource.com/setup_7.x | bash -
     apt-get update -q
     apt-get -y --no-install-recommends install \
@@ -68,7 +72,11 @@ install_deps(){
             python-numpy \
             python-openssl \
             python-pip \
-            python-software-properties
+            python-software-properties \
+            mongodb \
+            rabbitmq-server \
+            git \
+            build-essential 
     pip install -U pip setuptools
 }
 
@@ -77,6 +85,7 @@ install_python_deps(){
     pip install -r "$APP_ROOT/slybot/requirements.txt"
     pip install -r "$APP_ROOT/slyd/requirements.txt"
     pip install -r "$APP_ROOT/portia_server/requirements.txt"
+    pip install -r "$APP_ROOT/docs/requirements.txt"
     pip install -e "$APP_ROOT/slyd"
     pip install -e "$APP_ROOT/slybot"
 }
@@ -118,13 +127,28 @@ configure_nginx(){
     sed 's/\/app\//'""${APP_ROOT//\//\\\/}""'\//g' -i /etc/nginx/nginx.conf
 }
 
-configure_initctl(){
-    cp "$APP_ROOT/portia.conf" /etc/init
+configure_scrapyd(){
+    if [ ! -d "/etc/scrapyd" ]; then 
+        mkdir /etc/scrapyd
+    fi
+    cp -r $APP_ROOT/scrapyd/scrapyd.conf.template /etc/scrapyd/scrapyd.conf
+    sed 's/\/app\//'""${APP_ROOT//\//\\\/}""'\//g' -i /etc/scrapyd/scrapyd.conf
 }
 
+configure_initctl(){
+    cp "$APP_ROOT/portia.conf" /etc/init
+    sed 's/\/app\//'""${APP_ROOT//\//\\\/}""'\//g' -i /etc/init/portia.conf
+}
+
+configure_slyd(){
+    cp "$APP_ROOT/slyd/do_slyd_start.sh.template" "$APP_ROOT/slyd/do_slyd_start.sh"  
+    sed 's/\/app\//'""${APP_ROOT//\//\\\/}""'\//g' -i "$APP_ROOT/slyd/do_slyd_start.sh"
+}
 
 migrate_django_db(){
-    python /vagrant/portia_server/manage.py migrate
+    cd "$APP_ROOT/portia_server"
+    python manage.py makemigrations portia_dashboard
+    python manage.py migrate
 }
 
 start_portia(){
@@ -142,8 +166,13 @@ install_frontend_deps() {
 
 build_assets() {
     cd "$APP_ROOT/portiaui"
-    npm install && bower install
+    npm install && bower install --allow-root 
     ember build
+}
+
+build_docs() {
+    cd "$APP_ROOT/docs"
+    make html
 }
 
 if [ \( $# -eq 0 \) -o \( "$1" = "-h" \) -o \( "$1" = "--help" \) ]; then

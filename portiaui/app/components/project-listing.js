@@ -45,6 +45,24 @@ export default Ember.Component.extend({
             });
         },
 
+        deploy() {
+            this.get('project').deploy().then(data => {
+                // Show user message and allow them to schedule spider
+                this.get('notificationManager').showNotification(
+                    data.meta.deployed );
+            }, data => {
+                let error = data.errors[0];
+                if (error.status > 499) {
+                    throw data;
+                }
+                this.get('notificationManager').showNotification(error.title, error.detail);
+                if (error.status === 409) {
+                    this.sendAction('conflict');
+                }
+            });
+        },
+
+
         discard() {
             this.get('project').reset().then(() => {
                 this.sendAction('reload');

@@ -8,8 +8,8 @@ var eventCategories = {
    "scroll": "scroll",
     "focus": "focus",
      "blur": "focus",
-    "input": "simple",
-   "change": "simple",
+
+    "input": "set", //change "simple" -> "set"
 };
 
 function getEventCategory (evt) {
@@ -40,7 +40,9 @@ var interactionEvent = function(evt) {
     };
 
 
-    if(data.category === 'mouse') {
+    if (data.category === 'set') {
+        data.value = evt.value;
+    } else if(data.category === 'mouse') {
         // Send coordinates as a offset of the element instead of the document
         var clientRect = target.getBoundingClientRect();
         data.targetX = evt.clientX - clientRect.left;
@@ -62,7 +64,7 @@ var interactionEvent = function(evt) {
             data.scrollLeft  = 0;
             data.scrollTopPercent = 0;
         }
-    }
+    } 
 
     ATTRIBUTE_WHITELIST.forEach((attr) => {
         if (attr in evt) {

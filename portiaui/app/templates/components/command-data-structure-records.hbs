@@ -1,0 +1,9 @@
+{{#tree-list-item }}
+    {{#link-to 'projects.project.spider.action.data.command' command}}
+        {{indentation-spacer isSmall=true}}
+        {{list-item-icon icon=command.cmd }}
+        {{list-item-editable value=(mut command.tgt) onChange=(action 'saveCommand' command) }}
+        {{list-item-editable value=(mut command.val) onChange=(action 'saveCommand' command) }} 
+        {{list-item-icon icon='remove' action=(action 'removeCommand' command) bubbles=false}}
+    {{/link-to}}
+{{/tree-list-item}}

@@ -1,0 +1,57 @@
+
+#! /bin/sh
+#
+# Script to watch slyd. Sends mail to root and restarts slyd when it dies 
+#
+
+SLYD_BIN_FILE=/app/slyd/bin/slyd
+SLYD_LOG_FILE=/app/slyd/slyd.out
+SLYD_PID_FILE=/app/slyd/slyd.pid
+PORTIAUI_DIST_DIR=/app/portiaui/dist
+
+sync_ram_to_disc()
+{
+	echo "receive a signal SIGHUP, force sync ram to disk"
+}
+
+my_exit()
+{
+	echo "receive a sigal TERM , rm pid file"
+	rm $SLYD_PID_FILE
+}
+
+check_proc_exist_by_name()
+{
+	PROC_NAME=$1
+
+	pid=`/bin/ps ax | grep $PROC_NAME | grep -v grep | awk '{print $1}'`
+	if [ "$pid" ] ; then
+		echo "A Process $PROC_NAME already exists."
+		return 0
+	fi
+	return 1
+}
+
+
+if  check_proc_exist_by_name 'slyd'
+then
+	exit;
+fi 
+
+
+#ulimit -c unlimited
+#trap "my_exit" 2 3 15 
+#trap "sync_ram_to_disc" HUP
+
+while :
+do
+	# Use `wait', otherwise the trap doesn't work.
+        $SLYD_BIN_FILE -p 9002 -r $PORTIAUI_DIST_DIR > $SLYD_LOG_FILE 2>&1 &
+	wait
+
+	echo "`date`: slyd died, restarting.."
+	sleep 5
+
+done
+
+

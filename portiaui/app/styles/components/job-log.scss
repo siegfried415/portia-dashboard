@@ -1,0 +1,16 @@
+.job-log {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex: 0 1 auto;
+    overflow: auto;
+    width: 100%;
+    margin-top: $grid-gutter-width;
+    min-height: 0;
+    background-color: $navbar-default-bg;
+    border: 1px solid $navbar-default-border;
+    border-radius: $panel-border-radius;
+}
+

@@ -3,11 +3,6 @@
 FAQ
 ===
 
-How do I use Crawlera with Portia?
-----------------------------------
-
-Portia spiders are standard Scrapy spiders, so you can enable the `middleware <https://github.com/scrapy-plugins/scrapy-crawlera>`_ in your project's `settings.py`.
-
 Does Portia support AJAX based websites?
 ----------------------------------------
 
@@ -21,10 +16,11 @@ Backbone, Angular, and Ember have all been thoroughly tested using Portia, and i
 Does Portia support sites that require you to log in?
 -----------------------------------------------------
 
-Yes, you can set credentials in your spider's crawling configuration.
+Yes, you can set credentials in your spider's crawling configuration. In fact, Portia use loginform module to detect which form are for user name, and which are for password, but it is very possible for loginform to guess a wrong position which can make login fail. 
+
+In this case, you can create a Action, so long as login page has not been modifed, Action will be performed correctly.  
 
 Does Portia support content behind search forms?
 ------------------------------------------------
 
-No, but we plan on adding support in the near future.
-
+Yes, you can achieved this by creating an Action. 

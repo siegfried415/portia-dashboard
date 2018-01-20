@@ -335,6 +335,7 @@ class FerryServerProtocol(WebSocketServerProtocol):
             result.setdefault('_command', data.get('_callback', command))
             if '_meta' in data and 'id' in data['_meta']:
                 result['id'] = data['_meta']['id']
+
         return result
 
     def onClose(self, was_clean, code, reason):
@@ -442,7 +443,8 @@ class FerryServerProtocol(WebSocketServerProtocol):
 
     def _on_load_started(self):
         self.load_id = short_guid()
-        self.sendMessage({'_command': 'loadStarted', 'id': self.load_id,
+        self.sendMessage({'_command': 'loadStarted', 
+                          'id': self.load_id,
                           'url': self.tab.url})
         self.tab.initial_layout_completed = False
 

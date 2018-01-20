@@ -4,7 +4,7 @@
 Getting Started
 ===============
 
-.. note:: If you don't have Portia running yet, please read the :ref:`Installation guide <installation>` first. If you're using a hosted version of Portia on a platform like `Scrapinghub <http://scrapinghub.com>`_, you don't need to install anything.
+.. note:: If you don't have Portia running yet, please read the :ref:`Installation guide <installation>` first. 
 
 This tutorial will briefly cover how to begin extracting data with Portia.
 
@@ -45,6 +45,7 @@ Portia will create an :ref:`item <items>` schema from the elements that you anno
 
 You can see a preview of the items your sample will extract on the right. Once you've annotated all the data you wish to extract, close the sample. Your spider is :ref:`ready to run <running-spider>`, but you may want to configure it further in which case you should continue reading.
 
+
 Configuring your crawler
 ========================
 
@@ -63,9 +64,30 @@ For example, Amazon products' URLs contain ``/gp/``, so you can add this as a fo
 .. image:: _static/portia-configuring-crawling.png
     :alt: Configuring the crawling
 
-What's next?
-============
 
-Once you've created your samples and configured crawling behavior, it's time to :ref:`run <running-spider>` your spider.
+Begin to crawl 
+========================
 
-Check out the :ref:`examples` to learn a few tips to be more productive with Portia.
+The spider you have created is just a configration file, in order to crawl datas from site, you must deploy spider on scrapyd, which can be done by select ``Deploy project`` on the left under ``Project``. 
+
+
+.. image:: _static/portia-deploy-project.png
+    :alt: Deploy the project
+
+
+Once you've deployed your project, it's time to :ref:`run <running-spider>` your spider.  Check out the :ref:`examples` to learn a few tips to be more productive with Portia.
+
+.. image:: _static/portia-run-spider.png
+    :alt: Run a spider 
+
+
+Viewing result 
+========================
+
+Crawling process can be monitored by ``JOBS`` tab on left siderbar. Like process is a running program in operating system,  job is a running spider, which can be in pending, running and finished state. When job finished, you can browse crawled items. 
+
+
+.. image:: _static/portia-jobs.png
+    :alt: Dashboard jobs  
+
+

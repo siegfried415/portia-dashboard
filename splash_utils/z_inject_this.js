@@ -99,6 +99,31 @@ PortiaPage.sendEvent.simple = function(element, data, type) {
     element.dispatchEvent(ev);
 };
 
+function _select_set_value(select, value) {
+    for (var i = 0, len = select.options.length; i < len; i++) {
+        var option = select.options[ i ];
+        if (option.value === value) {
+            option.selected = true;
+            return;
+        }
+    }
+    select.selectedIndex = -1;
+}
+
+PortiaPage.sendEvent.set= function(element, data, type) {
+    var type;
+    if(element.tagName === 'SELECT') {
+        type = 'change';
+        _select_set_value(element, data.value);
+    } else if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        type = 'input';
+        element.value = data.value;
+    }
+    var ev = document.createEvent('Event');
+    ev.initEvent(type, true, false);
+    element.dispatchEvent(ev);
+};
+
 PortiaPage.sendEvent.focus = function(element, data, type) {
     if(type in element){
         element[type](); // This will trigger the event

@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import { NAMED_COLORS } from '../../../utils/colors';
 
+/* todo
 function filterLinkElements(filterFn) {
     return Ember.computed('allLinkElements', 'extractedItems.links', function() {
         const linkElements = this.get('allLinkElements');
@@ -23,12 +24,17 @@ function mapOverlayElements(elementsProperty, color) {
         color
     }));
 }
+*/
 
 export default Ember.Controller.extend({
-    extractedItems: Ember.inject.service(),
+    //todo, just for test
+    //extractedItems: Ember.inject.service(),
+    //extractedItems : [],
+
     selectorMatcher: Ember.inject.service(),
     webSocket: Ember.inject.service(),
 
+    /* todo 
     // only a tags with a non-empty href attribute
     linkSelector: 'a[href]:not([href=""]):not([href^="javascript:"])',
     allLinkElements: [],
@@ -55,7 +61,8 @@ export default Ember.Controller.extend({
             const ignored = this.get('ignoredLinkOverlayElements');
             return [].concat(followed).concat(js).concat(ignored);
         }),
-
+    */
+   
     init() {
         let ws = this.get('webSocket');
         ws.addCommand('metadata', this, this.msgMetadata);
@@ -63,14 +70,18 @@ export default Ember.Controller.extend({
     },
 
     activate() {
-        this.get('selectorMatcher').register(this.linkSelector, this, this.updateLinkElements);
+        //todo
+        //this.get('selectorMatcher').register(this.linkSelector, this, this.updateLinkElements);
     },
 
     deactivate() {
-        this.get('selectorMatcher').unRegister(this.linkSelector, this, this.updateLinkElements);
+        //todo
+        //this.get('selectorMatcher').unRegister(this.linkSelector, this, this.updateLinkElements);
     },
 
+    /* todo
     updateLinkElements(elements) {
         this.set('allLinkElements', elements);
     }
+    */
 });

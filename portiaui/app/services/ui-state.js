@@ -26,6 +26,7 @@ function computedRouteModels(mapping) {
                 const routeProperty = mapping[property];
                 const routeName = this.get(`${routeProperty}.routeName`);
                 const startsWithRoute = currentRouteName && currentRouteName.startsWith(routeName);
+
                 models[property] = startsWithRoute ?
                     this.get(routeProperty).modelFor(routeName) :
                     null;
@@ -42,7 +43,9 @@ export default Ember.Service.extend({
         item: 'itemRoute',
         annotation: 'annotationRoute',
         schema: 'schemaRoute',
-        field: 'fieldRoute'
+        field: 'fieldRoute',
+        action : 'actionRoute',
+        command : 'commandRoute',
     }),
     routes: computedActiveRoutes({
         project: 'projectRoute',
@@ -52,7 +55,9 @@ export default Ember.Service.extend({
         item: 'itemRoute',
         annotation: 'annotationRoute',
         schema: 'schemaRoute',
-        field: 'fieldRoute'
+        field: 'fieldRoute',
+        action : 'actionRoute',
+        command : 'commandRoute',
     }),
     slideMain: false,
     selectedTools: storageFor('uiStateSelectedTools'),
@@ -66,5 +71,6 @@ export default Ember.Service.extend({
         selectedElement: null,
         selectedModel: null,
         hoverOverlayColor: null
-    }
+    },
+    //currentAction : null,
 });

@@ -7,7 +7,8 @@ from portia_orm.base import AUTO_PK
 from portia_orm.exceptions import ProtectedError
 from portia_orm.models import (Project, Schema, Field, Extractor, Spider,
                                Sample, Item, Annotation, RenderedBody,
-                               OriginalBody)
+                               OriginalBody,
+                               Action, Command )
 from portia_api.utils.projects import unique_name
 from portia_api.utils.annotations import choose_field_type
 
@@ -145,11 +146,16 @@ class SpiderSerializer(JsonApiSerializer):
                 'related': '/api/projects/{self.project.id}/spiders/{self.id}'
                            '/samples',
             },
+            'actions': {
+                'related': '/api/projects/{self.project.id}/spiders/{self.id}'
+                           '/actions',
+            },
         }
         default_kwargs = {
             'exclude_map': {
                 'spiders': [
                     'samples',
+                    'actions',
                 ]
             }
         }
@@ -180,7 +186,7 @@ class SampleSerializer(JsonApiSerializer):
             'exclude_map': {
                 'samples': [
                     'page-id',
-                    'page-type',
+                    #'page-type',
                     'original-body',
                     'annotated-body',
                 ]
@@ -386,3 +392,60 @@ class OriginalBodySerializer(JsonApiSerializer):
                             '{self.sample.id}'),
             },
         }
+
+class ActionSerializer(JsonApiSerializer):
+    class Meta:
+        model = Action 
+        url = ('/api/projects/{self.spider.project.id}/spiders'
+               '/{self.spider.id}/actions/{self.id}')
+        links = {
+            'spider': {
+                'related': '/api/projects/{self.spider.project.id}/spiders'
+                           '/{self.spider.id}',
+            },
+            'commands': {
+                'related': '/api/projects/{self.spider.project.id}/spiders'
+                           '/{self.spider.id}/actions/{self.id}/commands',
+            },
+        }
+
+        default_kwargs = {
+            'exclude_map': {
+                'actions': [
+                    #'page-id',
+                    #'original-body',
+                    #'annotated-body',
+                ]
+            }
+        }
+
+    def create(self, validated_data):
+        action = super(ActionSerializer, self).create(validated_data)
+        return action 
+
+    def update(self, instance, validated_data):
+        action = super(ActionSerializer, self).update(instance, validated_data)
+        return action 
+
+class CommandSerializer(JsonApiSerializer):
+    class Meta:
+        model = Command 
+        url = ('/api/projects/{self.action.spider.project.id}/spiders'
+               '/{self.action.spider.id}/actions/{self.action.id}'
+               '/commands/{self.id}')
+        links = {
+            'action': {
+                'related': '/api/projects'
+                           '/{self.action.spider.project.id}/spiders'
+                           '/{self.action.spider.id}/actions/{self.action.id}',
+            },
+        }
+
+    def create(self, validated_data):
+        command = super(CommandSerializer, self).create(validated_data)
+        return command 
+
+    def update(self, instance, validated_data):
+        instance = super(CommandSerializer, self).update(
+            instance, validated_data)
+        return instance

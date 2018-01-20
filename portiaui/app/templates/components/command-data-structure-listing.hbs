@@ -1,0 +1,18 @@
+{{#tree-list}}
+    {{#tree-list-item hasChildren=action.orderedCommands.length as |options|}}
+        {{#if (eq options.section "item")}}
+            {{#list-item-text class="title"}}
+                Commands
+            {{/list-item-text}}
+            {{!-- list-item-icon icon='add' action=(action 'addCommand' action) --}}
+        {{else if (eq options.section "subtrees")}}
+            {{#sortable-objects sortableObjectList=action.orderedCommands sortEndAction=(action 'sortEndAction' action ) enableSort=true useSwap=true }}
+                {{#each action.orderedCommands as |command|}}
+		    {{#draggable-object content=command overrideClass='sortObject' isSortable=true}}
+		        {{command-data-structure-records action=action command=command }}
+		    {{/draggable-object}}
+                {{/each}}
+            {{/sortable-objects}}
+        {{/if}}
+    {{/tree-list-item}}
+{{/tree-list}}

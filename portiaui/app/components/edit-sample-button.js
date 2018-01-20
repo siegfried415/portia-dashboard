@@ -21,6 +21,10 @@ export default Ember.Component.extend({
     startUrlDomains: Ember.computed('spider.startUrls', function() {
         let startUrlDomains = new Set();
         for (let uri of this.get('spider.startUrls')) {
+
+            //bugfix
+            uri = uri.get('url');
+
             let domains = this.getUrlDomain(uri);
             for (let d of domains) {
                 startUrlDomains.add(d);
