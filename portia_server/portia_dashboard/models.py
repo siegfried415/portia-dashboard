@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 
-from django.db import models 
+from django.db import models
 from mongoengine import connect, DynamicDocument, fields
 
 
@@ -9,13 +9,13 @@ class Job(models.Model) :
     id = models.TextField(primary_key = True )
     index = models.IntegerField(default=0)
     spider = models.TextField(default='')
-    start_time = models.IntegerField(default=0)
-    end_time = models.IntegerField(default=0)
-    status = models.TextField( default = '') 
+    start_time = models.BigIntegerField(default=0)
+    end_time = models.BigIntegerField(default=0)
+    status = models.TextField( default = '')
     error_count= models.IntegerField(default=0)
     warning_count = models.IntegerField(default=0)
     critical_count = models.IntegerField(default=0)
-  
+
     @property
     def pk(self):
         return self.id
@@ -25,7 +25,7 @@ class Log(models.Model):
     content = models.TextField(default='')
 
 
-class Schedule(models.Model) : 
+class Schedule(models.Model) :
     id = models.TextField(primary_key = True )
 
     project = models.TextField()
