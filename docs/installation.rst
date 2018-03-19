@@ -21,7 +21,7 @@ If you want to login into server, you can use `nsenter <https://github.com/jpeta
 
 Before entering portia container, you must figure out the  PID of it by ::
 
-    portia_container_id=`sudo docker ps --format {{.ID}} ancestor=siegfried415/portia-dashboard`
+    portia_container_id=`sudo docker ps --format {{.ID}} -f ancestor=siegfried415/portia-dashboard`
     portia_container_pid=`sudo docker inspect --format {{.State.Pid}} $portia_container_id`
 
 Then enter the container:: 
